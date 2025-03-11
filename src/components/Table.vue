@@ -1,9 +1,10 @@
-<script setup>
+<script setup lang="ts">
 import { onMounted, ref } from "vue";
 import TableRow from "@/components/TableRow.vue";
 
 let items = ref([]);
 let users = ref([]);
+let mergedItems = ref([]);
 
 async function getData() {
   try {
@@ -30,8 +31,21 @@ async function getUserData() {
 }
 
 onMounted(async () => {
-  [getData(), getUserData()];
+  await Promise.all([getData(), getUserData()]);
+  mergeUsers();
 });
+
+function mergeUsers() {
+  mergedItems.value = items.value.map((elem) => {
+    let item = users.value.find((user) => elem.userId === user.id);
+    if (item) {
+      return { ...elem, ...item };
+    } else {
+      return elem;
+    }
+  });
+  console.log("mergedItems.value", mergedItems.value);
+}
 </script>
 <template>
   <table class="table">
@@ -39,14 +53,16 @@ onMounted(async () => {
       <tr>
         <th class="table-header">ID</th>
         <th class="table-header">User ID</th>
+        <th class="table-header">User Name</th>
         <th class="table-header">Title</th>
         <th class="table-header">Body</th>
       </tr>
     </thead>
     <tbody>
-      <TableRow v-for="item in items" :key="item.id">
+      <TableRow v-for="item in mergedItems" :key="item.id">
         <template #id>{{ item.id }}</template>
         <template #userID>{{ item.userId }}</template>
+        <template #userName>{{ item.name }}</template>
         <template #title>{{ item.title }}</template>
         <template #body>{{ item.body }}</template>
       </TableRow>

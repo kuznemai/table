@@ -4,6 +4,7 @@
   <tr>
     <td class="table-cell"><slot name="id"></slot></td>
     <td class="table-cell"><slot name="userID"></slot></td>
+    <td class="table-cell"><slot name="userName"></slot></td>
     <td class="table-cell"><slot name="title"></slot></td>
     <td class="table-cell"><slot name="body"></slot></td>
   </tr>
