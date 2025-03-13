@@ -1,70 +1,76 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
 import TableRow from "@/components/TableRow.vue";
+import { onMounted, ref, watch } from "vue";
 
-let items = ref([]);
-let users = ref([]);
-let mergedItems = ref([]);
-
-async function getData() {
-  try {
-    let response = await fetch("https://jsonplaceholder.typicode.com/posts");
-    if (response.ok) {
-      items.value = await response.json();
-      console.log("items", items.value);
-    }
-  } catch (error) {
-    console.error("Error:", error);
-  }
-}
-
-async function getUserData() {
-  try {
-    let response = await fetch("https://jsonplaceholder.typicode.com/users");
-    if (response.ok) {
-      users.value = await response.json();
-      console.log("users", users.value);
-    }
-  } catch (error) {
-    console.error("Error:", error);
-  }
-}
-
-onMounted(async () => {
-  await Promise.all([getData(), getUserData()]);
-  mergeUsers();
+const props = defineProps({
+  mergedItems: Array,
+  headersArr: Array,
 });
 
-function mergeUsers() {
-  mergedItems.value = items.value.map((elem) => {
-    let item = users.value.find((user) => elem.userId === user.id);
-    if (item) {
-      return { ...elem, ...item };
-    } else {
-      return elem;
+const emit = defineEmits(["renewedMergedItems"]);
+
+function handleSelectValue(event, header) {
+  let sortBy = event.target.value;
+
+  let copyOfMerged = [...props.mergedItems];
+
+  if (typeof props.mergedItems[0][header] === "number") {
+    console.log("test1");
+    if (sortBy === "lowtohigh") {
+      return copyOfMerged.sort((a, b) => a[header] - b[header]);
+      console.log("props.mergedItems1", props.mergedItems);
+    } else if (sortBy === "hightolow") {
+      return copyOfMerged.sort((a, b) => b[header] - a[header]);
+      console.log("props.mergedItems2", props.mergedItems);
     }
-  });
-  console.log("mergedItems.value", mergedItems.value);
+  } else if (typeof props.mergedItems[0][header] === "string") {
+    console.log("test2");
+    if (sortBy === "lowtohigh") {
+      console.log("sortBy", sortBy);
+      return copyOfMerged.sort((a, b) => a[header].localeCompare(b[header]));
+      console.log("props.mergedItems3", props.mergedItems);
+    } else if (sortBy === "hightolow") {
+      return copyOfMerged.sort((a, b) => b[header].localeCompare(a[header]));
+      console.log("props.mergedItems4", props.mergedItems);
+    }
+    console.log("props.mergedItems6", props.mergedItems);
+  }
+  console.log("props.mergedItems5", props.mergedItems);
+  console.log(event.target.value);
+  console.log("header", header);
+  emit("renewedMergedItems", copyOfMerged);
 }
 </script>
+
 <template>
   <table class="table">
     <thead class="table-head">
       <tr>
-        <th class="table-header">ID</th>
-        <th class="table-header">User ID</th>
-        <th class="table-header">User Name</th>
-        <th class="table-header">Title</th>
-        <th class="table-header">Body</th>
+        <th
+          class="table-header"
+          v-for="header in props.headersArr"
+          :key="header"
+        >
+          <div>
+            <span>{{ header.charAt(0).toUpperCase() + header.slice(1) }}</span>
+            <select
+              @change="handleSelectValue($event, header)"
+              class="select-wrapper"
+            >
+              <option value="lowtohigh">По возрастанию</option>
+              <option value="hightolow">По убыванию</option>
+            </select>
+          </div>
+        </th>
       </tr>
     </thead>
     <tbody>
-      <TableRow v-for="item in mergedItems" :key="item.id">
-        <template #id>{{ item.id }}</template>
-        <template #userID>{{ item.userId }}</template>
-        <template #userName>{{ item.name }}</template>
-        <template #title>{{ item.title }}</template>
-        <template #body>{{ item.body }}</template>
+      <TableRow v-for="item in props.mergedItems" :key="item.id">
+        <template #id>{{ item.userId }}</template>
+        <template #userID>{{ item.id }}</template>
+        <template #userName>{{ item.title }}</template>
+        <template #title>{{ item.body }}</template>
+        <template #body>{{ item.username }}</template>
       </TableRow>
     </tbody>
   </table>
