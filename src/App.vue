@@ -1,22 +1,25 @@
-<script setup>
+<script setup lang="ts">
 import Table from "@/components/Table.vue";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 
-let items = ref([]);
-let users = ref([]);
-let mergedItems = ref([]);
-let currentPage = ref(1);
-let itemsPerPage = 25;
-let amountOfPages = computed(() =>
+const items = ref([]);
+const users = ref([]);
+const mergedItems = ref([]);
+const currentPage = ref(1);
+const itemsPerPage = 25;
+const amountOfPages = computed(() =>
   Math.ceil(mergedItems.value.length / itemsPerPage),
 );
-let isActive = ref(false);
-let headersArr = ref([]);
-let selectedValue = ref("");
+const headersArr = ref([]);
+const filterBy = ref("");
+const selectedHeader = ref("");
+const selectedValue = ref("");
+const inputVal = ref("");
 
+// ----------------------requests and merging data-----------------------------------
 async function getData() {
   try {
-    let response = await fetch("https://jsonplaceholder.typicode.com/posts");
+    const response = await fetch("https://jsonplaceholder.typicode.com/posts");
     if (response.ok) {
       items.value = await response.json();
       console.log("items", items.value);
@@ -28,7 +31,7 @@ async function getData() {
 
 async function getUserData() {
   try {
-    let response = await fetch("https://jsonplaceholder.typicode.com/users");
+    const response = await fetch("https://jsonplaceholder.typicode.com/users");
     if (response.ok) {
       users.value = await response.json();
       console.log("users", users.value);
@@ -45,7 +48,7 @@ onMounted(async () => {
 
 function mergeUsers() {
   mergedItems.value = items.value.map((elem) => {
-    let item = users.value.find((user) => elem.userId === user.id);
+    const item = users.value.find((user) => elem.userId === user.id);
     if (item) {
       return { ...elem, username: item.username };
     } else {
@@ -57,17 +60,17 @@ function mergeUsers() {
   headersArr.value = Object.keys(mergedItems.value[0]);
   console.log("headersArr.value", headersArr.value);
 }
-
-let paginatedItems = computed(() => {
-  let start = (currentPage.value - 1) * itemsPerPage;
-  let end = start + itemsPerPage;
+// ----------------------requests and merging data-----------------------------------
+// -------------------Pagination---------------------------------
+const paginatedItems = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
   return mergedItems.value.slice(start, end);
   console.log("paginatedItems.value", paginatedItems.value);
 });
 
 function handlePropagationClick(page) {
   currentPage.value = page;
-  isActive.value = true;
 }
 
 function nextPage() {
@@ -83,18 +86,65 @@ function previousPage() {
     currentPage.value--;
   }
 }
+// -------------------Pagination end---------------------------------
+// ------------------Filtering------------------------------------------
+function getFilters({ sortBy, header }) {
+  filterBy.value = sortBy;
+  selectedHeader.value = header;
+  console.log("Фильтры", filterBy.value, selectedHeader.value);
+}
 
+watch([filterBy, selectedHeader], () => {
+  handleSelectTrigger(filterBy.value, selectedHeader.value);
+});
+
+function handleSelectTrigger(filterBy, selectedHeader) {
+  if (typeof mergedItems.value[0][selectedHeader] === "number") {
+    if (filterBy === "lowtohigh") {
+      mergedItems.value.sort((a, b) => a[selectedHeader] - b[selectedHeader]);
+    } else if (filterBy === "hightolow") {
+      mergedItems.value.sort((a, b) => b[selectedHeader] - a[selectedHeader]);
+    }
+  } else if (typeof mergedItems.value[0][selectedHeader] === "string") {
+    if (filterBy === "lowtohigh") {
+      mergedItems.value.sort((a, b) =>
+        a[selectedHeader].localeCompare(b[selectedHeader]),
+      );
+    } else if (filterBy === "hightolow") {
+      mergedItems.value.sort((a, b) =>
+        b[selectedHeader].localeCompare(a[selectedHeader]),
+      );
+    }
+  }
+}
+// ------------------Filtering------------------------------------------
+// ---------------------Filtering input-------------------------------------
 function sortBySelectValue(event) {
   selectedValue.value = event.target.value;
-  return mergedItems.value.sort(
-    (a, b) => a.event.target.value - b.event.target.value,
-  );
+  console.log("selectedValue.value", selectedValue.value);
 }
+
+function handleInputSelect(event) {
+  inputVal.value = event.target.value;
+  console.log(" inputVal.value", inputVal.value);
+}
+watch(selectedValue, () => inputSearch());
+function inputSearch() {
+  if (inputVal.value.length !== 0) {
+    mergedItems.value = mergedItems.value.filter((elem) => {
+      return Object.values(elem)
+        .toLowerCase()
+        .includes(inputVal.value.toLowerCase());
+    });
+  }
+  return mergedItems.value;
+}
+// ---------------------Filtering input-------------------------------------
 </script>
 
 <template>
   <div class="select-input-container">
-    <select @change="sortBySelectValue" class="select-wrapper">
+    <select @change="sortBySelectValue($event)" class="select-wrapper">
       <option
         v-for="header in headersArr"
         :key="header"
@@ -106,14 +156,18 @@ function sortBySelectValue(event) {
     </select>
     <div class="">
       <input
-        @input=""
+        @input="handleInputSelect($event)"
         class="input-wrapper"
         type="text"
         placeholder="Search..."
       />
     </div>
   </div>
-  <Table v-model:mergedItems="paginatedItems" :headersArr="headersArr"></Table>
+  <Table
+    v-model:mergedItems="paginatedItems"
+    :headersArr="headersArr"
+    @sendFiltersToParent="getFilters"
+  ></Table>
   <div class="pagination-buttons">
     <button class="pagination-button" @click="previousPage()"><</button>
     <button
@@ -144,6 +198,7 @@ function sortBySelectValue(event) {
   border-radius: 5px;
   margin: 5px;
 }
+
 .pagination-button:hover {
   background-color: #cccccc;
   transition: 0.3s;
@@ -152,6 +207,7 @@ function sortBySelectValue(event) {
 .active {
   background-color: #8c8c8c;
 }
+
 .select-input-container {
   display: flex;
   flex-direction: row;

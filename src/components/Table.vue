@@ -6,39 +6,14 @@ const props = defineProps({
   mergedItems: Array,
   headersArr: Array,
 });
+const sortBy = ref("");
+const tableHeader = ref("");
+const emit = defineEmits(["sendFiltersToParent"]);
 
-const emit = defineEmits(["renewedMergedItems"]);
-
-function handleSelectValue(event, header) {
-  let sortBy = event.target.value;
-
-  let copyOfMerged = [...props.mergedItems];
-
-  if (typeof props.mergedItems[0][header] === "number") {
-    console.log("test1");
-    if (sortBy === "lowtohigh") {
-      return copyOfMerged.sort((a, b) => a[header] - b[header]);
-      console.log("props.mergedItems1", props.mergedItems);
-    } else if (sortBy === "hightolow") {
-      return copyOfMerged.sort((a, b) => b[header] - a[header]);
-      console.log("props.mergedItems2", props.mergedItems);
-    }
-  } else if (typeof props.mergedItems[0][header] === "string") {
-    console.log("test2");
-    if (sortBy === "lowtohigh") {
-      console.log("sortBy", sortBy);
-      return copyOfMerged.sort((a, b) => a[header].localeCompare(b[header]));
-      console.log("props.mergedItems3", props.mergedItems);
-    } else if (sortBy === "hightolow") {
-      return copyOfMerged.sort((a, b) => b[header].localeCompare(a[header]));
-      console.log("props.mergedItems4", props.mergedItems);
-    }
-    console.log("props.mergedItems6", props.mergedItems);
-  }
-  console.log("props.mergedItems5", props.mergedItems);
-  console.log(event.target.value);
-  console.log("header", header);
-  emit("renewedMergedItems", copyOfMerged);
+function handleSelectValue($event, header) {
+  sortBy.value = $event.target.value;
+  tableHeader.value = header;
+  emit("sendFiltersToParent", { sortBy: sortBy.value, header: header });
 }
 </script>
 
@@ -51,7 +26,7 @@ function handleSelectValue(event, header) {
           v-for="header in props.headersArr"
           :key="header"
         >
-          <div>
+          <div class="header-select-container">
             <span>{{ header.charAt(0).toUpperCase() + header.slice(1) }}</span>
             <select
               @change="handleSelectValue($event, header)"
@@ -84,7 +59,6 @@ function handleSelectValue(event, header) {
 
 .table-head {
   background-color: #f3f3f3;
-  border: 1px solid black;
 }
 
 .table-header {
@@ -98,27 +72,10 @@ td {
   border: 1px solid black;
   padding: 8px;
 }
-</style>
-
-<style scoped>
-.table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.table-head {
-  background-color: #f3f3f3;
-}
-
-.table-header {
-  font-size: 16px;
-  font-weight: bold;
-  border: 2px solid black;
-  padding: 10px;
-}
-
-td {
-  border: 1px solid black;
-  padding: 8px;
+.header-select-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
 }
 </style>
