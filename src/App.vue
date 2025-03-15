@@ -8,11 +8,13 @@ const mergedItems = ref([]);
 const currentPage = ref(1);
 const itemsPerPage = 25;
 const amountOfPages = computed(() =>
-  Math.ceil(mergedItems.value.length / itemsPerPage),
+  Math.ceil(sortTableItems.value.length / itemsPerPage),
 );
 const headersArr = ref([]);
-const filterBy = ref("");
-const selectedHeader = ref("");
+// const filterBy = ref("");
+// const selectedHeader = ref("");
+const sort = ref({ sortBy: "hightolow", header: "userId" });
+
 const selectedValue = ref("");
 const inputVal = ref("");
 
@@ -60,12 +62,13 @@ function mergeUsers() {
   headersArr.value = Object.keys(mergedItems.value[0]);
   console.log("headersArr.value", headersArr.value);
 }
+
 // ----------------------requests and merging data-----------------------------------
 // -------------------Pagination---------------------------------
 const paginatedItems = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
   const end = start + itemsPerPage;
-  return mergedItems.value.slice(start, end);
+  return sortTableItems.value.slice(start, end);
   console.log("paginatedItems.value", paginatedItems.value);
 });
 
@@ -86,37 +89,61 @@ function previousPage() {
     currentPage.value--;
   }
 }
+
 // -------------------Pagination end---------------------------------
 // ------------------Filtering------------------------------------------
-function getFilters({ sortBy, header }) {
-  filterBy.value = sortBy;
-  selectedHeader.value = header;
-  console.log("Фильтры", filterBy.value, selectedHeader.value);
+function getFilters(payload) {
+  sort.value = payload;
+  console.log("Фильтры", sort.value);
 }
 
-watch([filterBy, selectedHeader], () => {
-  handleSelectTrigger(filterBy.value, selectedHeader.value);
-});
+// TODO:изменить название с филтра на сортировку
 
-function handleSelectTrigger(filterBy, selectedHeader) {
-  if (typeof mergedItems.value[0][selectedHeader] === "number") {
+// watch(sort.value, () => {
+//   handleSelectTrigger(filterBy.value, selectedHeader.value);
+// });
+
+const sortTableItems = computed(() => {
+  const { sortBy: filterBy, header: selectedHeader } = sort.value;
+  if (mergedItems.value.length === 0) {
+    return [];
+  }
+  let copyMergedItems = [...mergedItems.value];
+
+  if (inputVal.value.length && selectedValue.value.length) {
+    copyMergedItems = copyMergedItems.filter((elem) =>
+      elem[selectedValue.value].includes(inputVal.value),
+    );
+  }
+
+  console.log("mergedItems.value", mergedItems.value);
+  console.log("mergedItems.value[0]", mergedItems.value[0]);
+  console.log(
+    "mergedItems.value[0][selectedHeader]",
+    copyMergedItems[0][selectedHeader],
+  );
+  if (typeof copyMergedItems[0][selectedHeader] === "number") {
     if (filterBy === "lowtohigh") {
-      mergedItems.value.sort((a, b) => a[selectedHeader] - b[selectedHeader]);
+      copyMergedItems.sort((a, b) => a[selectedHeader] - b[selectedHeader]);
     } else if (filterBy === "hightolow") {
-      mergedItems.value.sort((a, b) => b[selectedHeader] - a[selectedHeader]);
+      copyMergedItems.sort((a, b) => b[selectedHeader] - a[selectedHeader]);
     }
-  } else if (typeof mergedItems.value[0][selectedHeader] === "string") {
+  } else if (typeof copyMergedItems[0][selectedHeader] === "string") {
     if (filterBy === "lowtohigh") {
-      mergedItems.value.sort((a, b) =>
+      copyMergedItems.sort((a, b) =>
         a[selectedHeader].localeCompare(b[selectedHeader]),
       );
     } else if (filterBy === "hightolow") {
-      mergedItems.value.sort((a, b) =>
+      copyMergedItems.sort((a, b) =>
         b[selectedHeader].localeCompare(a[selectedHeader]),
       );
     }
   }
-}
+  return copyMergedItems;
+});
+
+function handleSelectTrigger(filterBy, selectedHeader) {}
+
 // ------------------Filtering------------------------------------------
 // ---------------------Filtering input-------------------------------------
 function sortBySelectValue(event) {
@@ -124,27 +151,30 @@ function sortBySelectValue(event) {
   console.log("selectedValue.value", selectedValue.value);
 }
 
-function handleInputSelect(event) {
-  inputVal.value = event.target.value;
-  console.log(" inputVal.value", inputVal.value);
-}
-watch(selectedValue, () => inputSearch());
-function inputSearch() {
-  if (inputVal.value.length !== 0) {
-    mergedItems.value = mergedItems.value.filter((elem) => {
-      return Object.values(elem)
-        .toLowerCase()
-        .includes(inputVal.value.toLowerCase());
-    });
-  }
-  return mergedItems.value;
-}
+// function handleInputSelect(event) {
+//   inputVal.value = event.target.value;
+//   console.log(" inputVal.value", inputVal.value);
+// }
+
+// watch(selectedValue, () => inputSearch());
+
+// function inputSearch() {
+//   if (inputVal.value.length !== 0) {
+//     mergedItems.value = mergedItems.value.filter((elem) => {
+//       return Object.values(elem)
+//         .toLowerCase()
+//         .includes(inputVal.value.toLowerCase());
+//     });
+//   }
+//   return mergedItems.value;
+// }
+
 // ---------------------Filtering input-------------------------------------
 </script>
 
 <template>
   <div class="select-input-container">
-    <select @change="sortBySelectValue($event)" class="select-wrapper">
+    <select class="select-wrapper" v-model="selectedValue">
       <option
         v-for="header in headersArr"
         :key="header"
@@ -156,7 +186,7 @@ function inputSearch() {
     </select>
     <div class="">
       <input
-        @input="handleInputSelect($event)"
+        v-model="inputVal"
         class="input-wrapper"
         type="text"
         placeholder="Search..."

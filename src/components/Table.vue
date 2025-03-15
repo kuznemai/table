@@ -5,16 +5,15 @@ import { onMounted, ref, watch } from "vue";
 const props = defineProps({
   mergedItems: Array,
   headersArr: Array,
+  sort: Object,
 });
-const sortBy = ref("");
-const tableHeader = ref("");
+
 const emit = defineEmits(["sendFiltersToParent"]);
 
 function handleSelectValue($event, header) {
-  sortBy.value = $event.target.value;
-  tableHeader.value = header;
-  emit("sendFiltersToParent", { sortBy: sortBy.value, header: header });
+  emit("sendFiltersToParent", { sortBy: $event.target.value, header: header });
 }
+// TODO:изменить название с филтра на сортировку
 </script>
 
 <template>
@@ -32,6 +31,7 @@ function handleSelectValue($event, header) {
               @change="handleSelectValue($event, header)"
               class="select-wrapper"
             >
+              <option value="default">Не выбрано</option>
               <option value="lowtohigh">По возрастанию</option>
               <option value="hightolow">По убыванию</option>
             </select>
