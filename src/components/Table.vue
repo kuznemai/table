@@ -1,35 +1,34 @@
 <script setup lang="ts">
-import TableRow from "@/components/TableRow.vue";
-import { onMounted, ref, watch } from "vue";
-
-const props = defineProps({
-  mergedItems: Array,
-  headersArr: Array,
-  sort: Object,
-});
-
-const emit = defineEmits(["sendFiltersToParent"]);
-
-function handleSelectValue($event, header) {
-  emit("sendFiltersToParent", { sortBy: $event.target.value, header: header });
+import TableRow from '@/components/TableRow.vue';
+interface Props {
+  mergedposts: Merged[];
+  headersArr: string[];
+  sortValue: { sortBy: string; header: string };
 }
-// TODO:изменить название с филтра на сортировку
+
+const props = defineProps<Props>();
+
+const emit = defineEmits(['getSortFromParent']);
+
+function handleSelectValue($event: HTMLSelectElement, header: string) {
+  emit('getSortFromParent', {
+    sortBy: $event.target.value,
+    header: header,
+  });
+}
 </script>
 
 <template>
   <table class="table">
-    <thead class="table-head">
+    <thead>
       <tr>
-        <th
-          class="table-header"
-          v-for="header in props.headersArr"
-          :key="header"
-        >
-          <div class="header-select-container">
-            <span>{{ header.charAt(0).toUpperCase() + header.slice(1) }}</span>
+        <th class="table-header" v-for="(header, index) in props.headersArr" :key="header">
+          <div class="header-options">
+            <span class="font-bold">{{ header.charAt(0).toUpperCase() + header.slice(1) }}</span>
             <select
               @change="handleSelectValue($event, header)"
               class="select-wrapper"
+              :value="sortValue.header === header ? sortValue.sortBy : 'default'"
             >
               <option value="default">Не выбрано</option>
               <option value="lowtohigh">По возрастанию</option>
@@ -39,43 +38,67 @@ function handleSelectValue($event, header) {
         </th>
       </tr>
     </thead>
-    <tbody>
-      <TableRow v-for="item in props.mergedItems" :key="item.id">
-        <template #id>{{ item.userId }}</template>
-        <template #userID>{{ item.id }}</template>
-        <template #userName>{{ item.title }}</template>
-        <template #title>{{ item.body }}</template>
-        <template #body>{{ item.username }}</template>
+    <!--    <tbody>-->
+    <transition-group name="fade" tag="tbody">
+      <TableRow v-for="post in props.mergedposts" :key="post.id">
+        <template v-for="header in props.headersArr" :key="header">
+          <td class="table-cell">{{ post[header] }}</td>
+        </template>
       </TableRow>
-    </tbody>
+    </transition-group>
+    <!--    </tbody>-->
   </table>
 </template>
 
 <style scoped>
 .table {
-  width: 100%;
+  border: 1px solid black;
+  padding: 15px;
   border-collapse: collapse;
 }
 
-.table-head {
-  background-color: #f3f3f3;
+.table-header {
+  border: 1px solid black;
+  border-collapse: collapse;
+  padding: 10px;
+  background-color: #e8e8e8;
 }
 
-.table-header {
-  font-size: 16px;
-  font-weight: bold;
-  border: 2px solid black;
+.table-cell {
+  border: 1px solid black;
+  border-collapse: collapse;
   padding: 10px;
 }
 
-td {
-  border: 1px solid black;
-  padding: 8px;
-}
-.header-select-container {
+.header-options {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 5px;
+}
+
+.select-wrapper {
+  max-width: 150px;
+  margin: 10px auto 5px auto;
+}
+
+.font-bold {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition:
+    opacity 0.5s,
+    transform 0.5s;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.fade-move {
+  transition: transform 0.5s;
 }
 </style>

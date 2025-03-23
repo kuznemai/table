@@ -1,45 +1,65 @@
 <script setup lang="ts">
-import Table from "@/components/Table.vue";
-import { computed, onMounted, ref, watch } from "vue";
+import Table from '@/components/Table.vue';
+import { computed, onMounted, ref, watch } from 'vue';
 
-const items = ref([]);
-const users = ref([]);
-const mergedItems = ref([]);
-const currentPage = ref(1);
-const itemsPerPage = 25;
-const amountOfPages = computed(() =>
-  Math.ceil(sortTableItems.value.length / itemsPerPage),
-);
-const headersArr = ref([]);
-// const filterBy = ref("");
-// const selectedHeader = ref("");
-const sort = ref({ sortBy: "hightolow", header: "userId" });
+interface Post {
+  userId: number;
+  id: number;
+  title: string;
+  body: string;
+}
 
-const selectedValue = ref("");
-const inputVal = ref("");
+interface User {
+  id: number;
+  name: string;
+  username: string;
+  email: string;
+  address: {
+    company: string;
+    email: string;
+    id: number;
+    name: string;
+    phone: string;
+    username: string;
+    website: string;
+  };
+}
+
+const posts = ref<Post[]>([]);
+const users = ref<User[]>([]);
+const mergedposts = ref<Merged[]>([]);
+const currentPage = ref<number>(1);
+const postsPerPage = 25;
+const amountOfPages = computed(() => Math.ceil(filterTableposts.value.length / postsPerPage));
+const headersArr = ref<string[]>([]);
+
+const sort = ref({ sortBy: 'lowtohigh', header: 'id' });
+
+const selectedValue = ref('');
+const inputVal = ref('');
 
 // ----------------------requests and merging data-----------------------------------
 async function getData() {
   try {
-    const response = await fetch("https://jsonplaceholder.typicode.com/posts");
+    const response = await fetch('https://jsonplaceholder.typicode.com/posts');
     if (response.ok) {
-      items.value = await response.json();
-      console.log("items", items.value);
+      posts.value = await response.json();
+      console.log('posts', posts.value);
     }
   } catch (error) {
-    console.error("Error:", error);
+    console.error('Error:', error);
   }
 }
 
 async function getUserData() {
   try {
-    const response = await fetch("https://jsonplaceholder.typicode.com/users");
+    const response = await fetch('https://jsonplaceholder.typicode.com/users');
     if (response.ok) {
       users.value = await response.json();
-      console.log("users", users.value);
+      console.log('users', users.value);
     }
   } catch (error) {
-    console.error("Error:", error);
+    console.error('Error:', error);
   }
 }
 
@@ -49,37 +69,34 @@ onMounted(async () => {
 });
 
 function mergeUsers() {
-  mergedItems.value = items.value.map((elem) => {
-    const item = users.value.find((user) => elem.userId === user.id);
-    if (item) {
-      return { ...elem, username: item.username };
+  mergedposts.value = posts.value.map((elem: Post) => {
+    const post = users.value.find((user: User) => elem.userId === user.id);
+    if (post) {
+      return { ...elem, username: post.username };
     } else {
       return elem;
     }
   });
-  console.log("mergedItems.value", mergedItems.value);
-  console.log("amountOfPages", amountOfPages.value);
-  headersArr.value = Object.keys(mergedItems.value[0]);
-  console.log("headersArr.value", headersArr.value);
+
+  headersArr.value = Object.keys(mergedposts.value[0]);
+  console.log('mergedposts.value', mergedposts.value);
 }
 
 // ----------------------requests and merging data-----------------------------------
 // -------------------Pagination---------------------------------
-const paginatedItems = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage;
-  const end = start + itemsPerPage;
-  return sortTableItems.value.slice(start, end);
-  console.log("paginatedItems.value", paginatedItems.value);
+const paginatedposts = computed(() => {
+  const start = (currentPage.value - 1) * postsPerPage;
+  const end = start + postsPerPage;
+  return filterTableposts.value.slice(start, end);
+  console.log('paginatedposts.value', paginatedposts.value);
 });
 
-function handlePropagationClick(page) {
+function handlePropagationClick(page: number) {
   currentPage.value = page;
 }
 
 function nextPage() {
-  if (
-    currentPage.value !== Math.ceil(mergedItems.value.length / itemsPerPage)
-  ) {
+  if (currentPage.value !== Math.ceil(mergedposts.value.length / postsPerPage)) {
     currentPage.value++;
   }
 }
@@ -92,111 +109,84 @@ function previousPage() {
 
 // -------------------Pagination end---------------------------------
 // ------------------Filtering------------------------------------------
-function getFilters(payload) {
+function getSorting(payload) {
+  console.log('payload', payload);
   sort.value = payload;
-  console.log("Фильтры", sort.value);
+  console.log('Cортировка', sort.value);
 }
 
 // TODO:изменить название с филтра на сортировку
+const isTypeInputNumber = computed(() => ['userId', 'id'].includes(selectedValue.value));
+console.log('isTypeInputNumber', isTypeInputNumber);
 
-// watch(sort.value, () => {
-//   handleSelectTrigger(filterBy.value, selectedHeader.value);
-// });
+const filterTableposts = computed(() => {
+  let copymergedposts = [...mergedposts.value];
 
-const sortTableItems = computed(() => {
   const { sortBy: filterBy, header: selectedHeader } = sort.value;
-  if (mergedItems.value.length === 0) {
-    return [];
-  }
-  let copyMergedItems = [...mergedItems.value];
 
-  if (inputVal.value.length && selectedValue.value.length) {
-    copyMergedItems = copyMergedItems.filter((elem) =>
-      elem[selectedValue.value].includes(inputVal.value),
-    );
-  }
-
-  console.log("mergedItems.value", mergedItems.value);
-  console.log("mergedItems.value[0]", mergedItems.value[0]);
-  console.log(
-    "mergedItems.value[0][selectedHeader]",
-    copyMergedItems[0][selectedHeader],
-  );
-  if (typeof copyMergedItems[0][selectedHeader] === "number") {
-    if (filterBy === "lowtohigh") {
-      copyMergedItems.sort((a, b) => a[selectedHeader] - b[selectedHeader]);
-    } else if (filterBy === "hightolow") {
-      copyMergedItems.sort((a, b) => b[selectedHeader] - a[selectedHeader]);
-    }
-  } else if (typeof copyMergedItems[0][selectedHeader] === "string") {
-    if (filterBy === "lowtohigh") {
-      copyMergedItems.sort((a, b) =>
-        a[selectedHeader].localeCompare(b[selectedHeader]),
+  if (inputVal.value.length !== 0 && selectedValue.value.length !== 0) {
+    console.log('inputVal.value', inputVal.value);
+    console.log('selectedValue.value', selectedValue.value);
+    if (isTypeInputNumber.value) {
+      console.log('isTypeInputNumber.value', isTypeInputNumber.value);
+      copymergedposts = copymergedposts.filter(
+        (elem) => Number(elem[selectedValue.value]) === Number(inputVal.value)
       );
-    } else if (filterBy === "hightolow") {
-      copyMergedItems.sort((a, b) =>
-        b[selectedHeader].localeCompare(a[selectedHeader]),
+    } else {
+      copymergedposts = copymergedposts.filter((elem) =>
+        elem[selectedValue.value]?.toString().toLowerCase().includes(inputVal.value.toLowerCase())
       );
     }
   }
-  return copyMergedItems;
+
+  if (copymergedposts.length > 0 && typeof copymergedposts[0][selectedHeader] === 'number') {
+    if (filterBy === 'lowtohigh') {
+      copymergedposts.sort((a, b) => a[selectedHeader] - b[selectedHeader]);
+    } else if (filterBy === 'hightolow') {
+      copymergedposts.sort((a, b) => b[selectedHeader] - a[selectedHeader]);
+    }
+  } else if (copymergedposts.length > 0 && typeof copymergedposts[0][selectedHeader] === 'string') {
+    if (filterBy === 'lowtohigh') {
+      copymergedposts.sort((a, b) =>
+        a[selectedHeader].toLowerCase().localeCompare(b[selectedHeader])
+      );
+    } else if (filterBy === 'hightolow') {
+      copymergedposts.sort((a, b) =>
+        b[selectedHeader].toLowerCase().localeCompare(a[selectedHeader])
+      );
+    }
+  }
+  return copymergedposts;
 });
-
-function handleSelectTrigger(filterBy, selectedHeader) {}
 
 // ------------------Filtering------------------------------------------
 // ---------------------Filtering input-------------------------------------
-function sortBySelectValue(event) {
-  selectedValue.value = event.target.value;
-  console.log("selectedValue.value", selectedValue.value);
-}
-
-// function handleInputSelect(event) {
-//   inputVal.value = event.target.value;
-//   console.log(" inputVal.value", inputVal.value);
-// }
-
-// watch(selectedValue, () => inputSearch());
-
-// function inputSearch() {
-//   if (inputVal.value.length !== 0) {
-//     mergedItems.value = mergedItems.value.filter((elem) => {
-//       return Object.values(elem)
-//         .toLowerCase()
-//         .includes(inputVal.value.toLowerCase());
-//     });
-//   }
-//   return mergedItems.value;
-// }
 
 // ---------------------Filtering input-------------------------------------
 </script>
 
 <template>
   <div class="select-input-container">
-    <select class="select-wrapper" v-model="selectedValue">
-      <option
-        v-for="header in headersArr"
-        :key="header"
-        :value="header"
-        class="select-option"
-      >
-        Sort by {{ header }}
+    <select class="select-wrapperr" v-model="selectedValue">
+      <option v-for="header in headersArr" :key="header" :value="header" class="select-option">
+        Filter by {{ header }}
       </option>
     </select>
     <div class="">
       <input
         v-model="inputVal"
         class="input-wrapper"
-        type="text"
+        :type="isTypeInputNumber ? 'number' : 'text'"
         placeholder="Search..."
       />
     </div>
+    {{ inputVal }}
   </div>
   <Table
-    v-model:mergedItems="paginatedItems"
+    v-model:mergedposts="paginatedposts"
     :headersArr="headersArr"
-    @sendFiltersToParent="getFilters"
+    @getSortFromParent="getSorting"
+    :sort-value="sort"
   ></Table>
   <div class="pagination-buttons">
     <button class="pagination-button" @click="previousPage()"><</button>
@@ -244,7 +234,7 @@ function sortBySelectValue(event) {
   gap: 20px;
 }
 
-.select-wrapper,
+.select-wrapperr,
 .input-wrapper {
   width: 200px;
   height: 40px;
