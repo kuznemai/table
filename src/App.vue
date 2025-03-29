@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Table from '@/components/Table.vue';
 import { computed, onMounted, ref, watch } from 'vue';
+import TableWithPagination from '@/components/TableWithPagination.vue';
 
 interface Post {
   userId: number;
@@ -182,25 +183,12 @@ const filterTableposts = computed(() => {
     </div>
     {{ inputVal }}
   </div>
-  <Table
-    v-model:mergedposts="paginatedposts"
+  <table-with-pagination
+    :mergedposts="paginatedposts"
     :headersArr="headersArr"
     @getSortFromParent="getSorting"
     :sort-value="sort"
-  ></Table>
-  <div class="pagination-buttons">
-    <button class="pagination-button" @click="previousPage()"><</button>
-    <button
-      class="pagination-button"
-      :class="[currentPage === page ? 'active' : '']"
-      v-for="page in amountOfPages"
-      :key="page"
-      @click="handlePropagationClick(page)"
-    >
-      {{ page }}
-    </button>
-    <button class="pagination-button" @click="nextPage()">></button>
-  </div>
+  ></table-with-pagination>
 </template>
 
 <style scoped>
