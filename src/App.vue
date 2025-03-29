@@ -186,8 +186,14 @@ const filterTableposts = computed(() => {
   <table-with-pagination
     :mergedposts="paginatedposts"
     :headersArr="headersArr"
-    @getSortFromParent="getSorting"
     :sort-value="sort"
+    :page="currentPage"
+    :amount-of-pages="amountOfPages"
+    :current-page="currentPage"
+    @getSortFromParent="getSorting"
+    @sendPreviousEmits="previousPage()"
+    @sendNextEmits="nextPage()"
+    @emit-propagation="handlePropagationClick"
   ></table-with-pagination>
 </template>
 
