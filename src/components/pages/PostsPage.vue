@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import Table from '@/App.vue';
-import TableWithPagination from '@/components/TableWithPagination.vue';
-import { onMounted, ref } from 'vue';
+import TableWithPagination from '../TableWithPagination.vue';
+import { onMounted, ref, computed } from 'vue';
+import SelectInput from '../SelectInput.vue';
 
 interface Post {
   userId: number;
@@ -29,6 +29,12 @@ interface User {
 const posts = ref<Post[]>([]);
 const users = ref<User[]>([]);
 const mergedposts = ref<Merged[]>([]);
+const sort = ref({ sortBy: 'lowtohigh', header: 'id' });
+const headersArr = ref<string[]>([]);
+
+const selectedMainHeader = ref('');
+const inputVal = ref('');
+
 async function getData() {
   try {
     const response = await fetch('https://jsonplaceholder.typicode.com/posts');
@@ -44,6 +50,7 @@ async function getData() {
     console.error('Error:', error);
   }
 }
+
 async function getUserData() {
   try {
     const response = await fetch('https://jsonplaceholder.typicode.com/users');
@@ -64,7 +71,10 @@ onMounted(async () => {
   await Promise.all([getData(), getUserData()]);
   mergeUsers();
 });
+
 function mergeUsers() {
+  if (posts.value.length === 0 || users.value.length === 0) return;
+
   mergedposts.value = posts.value.map((elem: Post) => {
     const post = users.value.find((user: User) => elem.userId === user.userId);
     if (post) {
@@ -77,10 +87,73 @@ function mergeUsers() {
   headersArr.value = Object.keys(mergedposts.value[0]);
   console.log('mergedposts.value', mergedposts.value);
 }
+
+// ------------------Filtering------------------------------------------
+
+function getSorting(payload: { sortBy: string; header: string }) {
+  console.log('payload', payload);
+  sort.value = payload;
+  console.log('Cортировка', sort.value);
+}
+const isTypeInputNumber = computed(() => ['userId', 'id'].includes(selectedMainHeader.value));
+console.log('isTypeInputNumber', isTypeInputNumber);
+
+const filterTableposts = computed(() => {
+  let copymergedposts = [...mergedposts.value];
+
+  const { sortBy: filterBy, header: selectedHeader } = sort.value;
+
+  if (inputVal.value.length !== 0 && selectedMainHeader.value.length !== 0) {
+    console.log('inputVal.value', inputVal.value);
+    console.log('selectedHeader.value', selectedMainHeader.value);
+    if (isTypeInputNumber.value) {
+      console.log('isTypeInputNumber.value', isTypeInputNumber.value);
+      copymergedposts = copymergedposts.filter(
+        (elem) => Number(elem[selectedMainHeader.value]) === Number(inputVal.value)
+      );
+    } else {
+      copymergedposts = copymergedposts.filter((elem) =>
+        elem[selectedMainHeader.value]
+          ?.toString()
+          .toLowerCase()
+          .includes(inputVal.value.toLowerCase())
+      );
+    }
+  }
+
+  if (copymergedposts.length > 0 && typeof copymergedposts[0][selectedHeader] === 'number') {
+    if (filterBy === 'lowtohigh') {
+      copymergedposts.sort((a, b) => a[selectedHeader] - b[selectedHeader]);
+    } else if (filterBy === 'hightolow') {
+      copymergedposts.sort((a, b) => b[selectedHeader] - a[selectedHeader]);
+    }
+  } else if (copymergedposts.length > 0 && typeof copymergedposts[0][selectedHeader] === 'string') {
+    if (filterBy === 'lowtohigh') {
+      copymergedposts.sort((a, b) =>
+        a[selectedHeader].toLowerCase().localeCompare(b[selectedHeader])
+      );
+    } else if (filterBy === 'hightolow') {
+      copymergedposts.sort((a, b) =>
+        b[selectedHeader].toLowerCase().localeCompare(a[selectedHeader])
+      );
+    }
+  }
+  return copymergedposts;
+});
 </script>
 
 <template>
-  <table-with-pagination></table-with-pagination>
+  <select-input
+    v-model:selectedMainHeader="selectedMainHeader"
+    v-model:inputVal="inputVal"
+    :headersArr="headersArr"
+  ></select-input>
+  <table-with-pagination
+    :mergedposts="filterTableposts"
+    :headers-arr="headersArr"
+    :sort-value="sort"
+    @getSortFromParent="getSorting"
+  ></table-with-pagination>
 </template>
 
 <style scoped></style>

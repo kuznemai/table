@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import TableRow from '@/components/TableRow.vue';
 interface Props {
-  mergedposts: Merged[];
+  paginatedposts: Merged[];
   headersArr: string[];
   sortValue: { sortBy: string; header: string };
+  // page: number;
+  // amountOfPages: number;
+  // currentPage: number;
 }
 
 const props = defineProps<Props>();
@@ -40,7 +43,7 @@ function handleSelectValue($event: HTMLSelectElement, header: string) {
     </thead>
     <!--    <tbody>-->
     <transition-group name="fade" tag="tbody">
-      <TableRow v-for="post in props.mergedposts" :key="post.id">
+      <TableRow v-for="post in props.paginatedposts" :key="post.postId">
         <template v-for="header in props.headersArr" :key="header">
           <td class="table-cell">{{ post[header] }}</td>
         </template>
