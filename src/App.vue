@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import Table from '@/components/Table.vue';
-import { computed, onMounted, ref, watch } from 'vue';
-import TableWithPagination from '@/components/TableWithPagination.vue';
-import SelectInput from '@/components/SelectInput.vue';
 import PostsPage from '@/components/pages/PostsPage.vue';
+import { ref } from 'vue';
+import AlbumsPage from '@/components/pages/AlbumsPage.vue';
 
 interface Post {
   userId: number;
@@ -27,47 +25,46 @@ interface User {
     website: string;
   };
 }
+
+const chosenTab = ref('posts');
 </script>
 
 <template>
-  <posts-page></posts-page>
+  <div class="tabs-container">
+    <!--    <nav>-->
+    <!--      <router-link to="/posts">Главная</router-link>-->
+    <!--      <router-link to="/albums">О нас</router-link>-->
+    <!--    </nav>-->
+    <!--    <router-view />-->
+    <div class="tabs">
+      <button @click="chosenTab = 'posts'" :class="{ active: chosenTab === 'posts' }">Posts</button>
+      <button @click="chosenTab = 'albums'" :class="{ active: chosenTab === 'albums' }">
+        Albums
+      </button>
+    </div>
+  </div>
+
+  <posts-page v-if="chosenTab === 'posts'" />
+  <albums-page v-if="chosenTab === 'albums'" />
 </template>
 
 <style scoped>
-.pagination-buttons {
+.tabs-container {
+  padding: 20px;
+}
+
+.tabs {
   display: flex;
-  flex-direction: row;
-  justify-content: center;
-  padding-top: 30px;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
-.pagination-button {
-  width: 40px;
+.tabs > button {
+  width: 100px;
   height: 40px;
-  border: 1px solid black;
-  border-radius: 5px;
-  margin: 5px;
-}
-
-.pagination-button:hover {
-  background-color: #cccccc;
-  transition: 0.3s;
 }
 
 .active {
   background-color: #8c8c8c;
-}
-
-.select-input-container {
-  display: flex;
-  flex-direction: row;
-  gap: 20px;
-}
-
-.select-wrapperr,
-.input-wrapper {
-  width: 200px;
-  height: 40px;
-  margin-bottom: 20px;
 }
 </style>

@@ -4,9 +4,8 @@ interface Props {
   paginatedposts: Merged[];
   headersArr: string[];
   sortValue: { sortBy: string; header: string };
-  // page: number;
-  // amountOfPages: number;
-  // currentPage: number;
+  inputVal: string;
+  selectedMainHeader: string;
 }
 
 const props = defineProps<Props>();
@@ -103,5 +102,9 @@ function handleSelectValue($event: HTMLSelectElement, header: string) {
 
 .fade-move {
   transition: transform 0.5s;
+}
+.highlight {
+  background-color: yellow;
+  font-weight: bold;
 }
 </style>

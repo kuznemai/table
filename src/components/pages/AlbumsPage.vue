@@ -2,35 +2,37 @@
 import TableRow from '@/components/TableRow.vue';
 import { onMounted, ref } from 'vue';
 
-const todoArr = ref([]);
+const albumsArr = ref([]);
 
-async function getToDo() {
+async function getAlbums() {
   try {
-    const response = await fetch('https://jsonplaceholder.typicode.com/todos');
+    const response = await fetch('https://jsonplaceholder.typicode.com/albums');
     if (response.ok) {
-      todoArr.value = await response.json();
+      albumsArr.value = await response.json();
     }
   } catch (error) {
     console.error('Error:', error);
   }
 }
 
-onMounted(getToDo);
+onMounted(getAlbums);
 </script>
 
 <template>
   <table>
     <thead>
       <tr>
-        <th>ID</th>
+        <th>UserID</th>
+        <th>Id</th>
         <th>Title</th>
-        <th>Completed</th>
       </tr>
     </thead>
     <tbody>
-      <table-row v-for="todo in todoArr" :key="todo.id">
+      <table-row v-for="album in albumsArr" :key="album.id">
         <template #default>
-          <td>{{ todo.id }}</td>
+          <td>{{ album.userId }}</td>
+          <td>{{ album.id }}</td>
+          <td>{{ album.title }}</td>
         </template>
       </table-row>
     </tbody>

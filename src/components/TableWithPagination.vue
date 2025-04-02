@@ -5,6 +5,8 @@ interface Props {
   mergedposts: Merged[];
   headersArr: string[];
   sortValue: { sortBy: string; header: string };
+  inputVal: string;
+  selectedMainHeader: string;
 }
 
 const props = defineProps<Props>();
@@ -65,39 +67,6 @@ function getSorting(payload: { sortBy: string; header: string }) {
 </template>
 
 <style scoped>
-.table {
-  border: 1px solid black;
-  padding: 15px;
-  border-collapse: collapse;
-}
-
-.table-header {
-  border: 1px solid black;
-  border-collapse: collapse;
-  padding: 10px;
-  background-color: #e8e8e8;
-}
-
-.table-cell {
-  border: 1px solid black;
-  border-collapse: collapse;
-  padding: 10px;
-}
-
-.header-options {
-  display: flex;
-  flex-direction: column;
-}
-
-.select-wrapper {
-  max-width: 150px;
-  margin: 10px auto 5px auto;
-}
-
-.font-bold {
-  font-size: 18px;
-  font-weight: 500;
-}
 .pagination-buttons {
   display: flex;
   flex-direction: row;

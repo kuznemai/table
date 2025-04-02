@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { computed, watch, ref } from 'vue';
+import { computed } from 'vue';
 
 const props = defineProps({
   inputVal: String,
   selectedMainHeader: String,
   headersArr: Array,
 });
-
+const emit = defineEmits(['update:selectedMainHeader', 'update:inputVal']);
 function handleSelect($event: HTMLSelectElement) {
   emit('update:selectedMainHeader', $event.target.value);
 }
@@ -15,12 +15,12 @@ function handleInput($event: HTMLInputElement) {
   emit('update:inputVal', $event.target.value);
 }
 
-const emit = defineEmits(['update:selectedMainHeader', 'update:inputVal']);
+const isTypeInputNumber = computed(() => ['userId', 'postId'].includes(props.selectedMainHeader));
 </script>
 
 <template>
   <div class="select-input-container">
-    <select class="select-wrapperr" @change="handleSelect">
+    <select class="select-wrapperr" @change="handleSelect" :value="selectedMainHeader">
       <option
         v-for="header in props.headersArr"
         :key="header"
@@ -37,7 +37,6 @@ const emit = defineEmits(['update:selectedMainHeader', 'update:inputVal']);
         class="input-wrapper"
         :type="isTypeInputNumber ? 'number' : 'text'"
         placeholder="Search..."
-        @isInputNumber="isInputNumber"
       />
     </div>
     {{ inputVal }}

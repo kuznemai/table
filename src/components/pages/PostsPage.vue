@@ -29,7 +29,7 @@ interface User {
 const posts = ref<Post[]>([]);
 const users = ref<User[]>([]);
 const mergedposts = ref<Merged[]>([]);
-const sort = ref({ sortBy: 'lowtohigh', header: 'id' });
+const sort = ref({ sortBy: 'lowtohigh', header: 'postId' });
 const headersArr = ref<string[]>([]);
 
 const selectedMainHeader = ref('');
@@ -85,7 +85,6 @@ function mergeUsers() {
   });
 
   headersArr.value = Object.keys(mergedposts.value[0]);
-  console.log('mergedposts.value', mergedposts.value);
 }
 
 // ------------------Filtering------------------------------------------
@@ -95,8 +94,7 @@ function getSorting(payload: { sortBy: string; header: string }) {
   sort.value = payload;
   console.log('Cортировка', sort.value);
 }
-const isTypeInputNumber = computed(() => ['userId', 'id'].includes(selectedMainHeader.value));
-console.log('isTypeInputNumber', isTypeInputNumber);
+const isTypeInputNumber = computed(() => ['userId', 'postId'].includes(selectedMainHeader.value));
 
 const filterTableposts = computed(() => {
   let copymergedposts = [...mergedposts.value];
@@ -104,8 +102,6 @@ const filterTableposts = computed(() => {
   const { sortBy: filterBy, header: selectedHeader } = sort.value;
 
   if (inputVal.value.length !== 0 && selectedMainHeader.value.length !== 0) {
-    console.log('inputVal.value', inputVal.value);
-    console.log('selectedHeader.value', selectedMainHeader.value);
     if (isTypeInputNumber.value) {
       console.log('isTypeInputNumber.value', isTypeInputNumber.value);
       copymergedposts = copymergedposts.filter(
@@ -152,6 +148,8 @@ const filterTableposts = computed(() => {
     :mergedposts="filterTableposts"
     :headers-arr="headersArr"
     :sort-value="sort"
+    :input-val="inputVal"
+    :selected-main-header="selectedMainHeader"
     @getSortFromParent="getSorting"
   ></table-with-pagination>
 </template>
