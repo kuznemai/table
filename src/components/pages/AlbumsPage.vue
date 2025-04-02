@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import TableRow from '@/components/TableRow.vue';
 import { onMounted, ref } from 'vue';
+import ModalAlbums from '@/components/ModalAlbums.vue';
 
 const albumsArr = ref([]);
 
@@ -16,6 +17,14 @@ async function getAlbums() {
 }
 
 onMounted(getAlbums);
+
+const isOpenModalAlbum = ref(false);
+const albumId = ref();
+function openModalAlbum(id) {
+  alert('opppa');
+  albumId.value = id;
+  isOpenModalAlbum.value = true;
+}
 </script>
 
 <template>
@@ -28,7 +37,7 @@ onMounted(getAlbums);
       </tr>
     </thead>
     <tbody>
-      <table-row v-for="album in albumsArr" :key="album.id">
+      <table-row v-for="album in albumsArr" :key="album.id" @click="openModalAlbum(album.id)">
         <template #default>
           <td>{{ album.userId }}</td>
           <td>{{ album.id }}</td>
@@ -37,6 +46,11 @@ onMounted(getAlbums);
       </table-row>
     </tbody>
   </table>
+  <modal-albums
+    v-if="isOpenModalAlbum"
+    v-model:isOpenModalAlbum="isOpenModalAlbum"
+    :album.id="albumId"
+  ></modal-albums>
 </template>
 
 <style scoped>

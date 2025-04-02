@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import TableRow from '@/components/TableRow.vue';
+import { ref } from 'vue';
+import ModalPosts from '@/components/ModalPosts.vue';
+
 interface Props {
   paginatedposts: Merged[];
   headersArr: string[];
@@ -17,6 +20,14 @@ function handleSelectValue($event: HTMLSelectElement, header: string) {
     sortBy: $event.target.value,
     header: header,
   });
+}
+
+const isModalOpen = ref(false);
+const postId = ref();
+
+function openPost(id) {
+  isModalOpen.value = true;
+  postId.value = id;
 }
 </script>
 
@@ -42,14 +53,15 @@ function handleSelectValue($event: HTMLSelectElement, header: string) {
     </thead>
     <!--    <tbody>-->
     <transition-group name="fade" tag="tbody">
-      <TableRow v-for="post in props.paginatedposts" :key="post.postId">
+      <TableRow class="table-row" v-for="post in props.paginatedposts" :key="post.postId">
         <template v-for="header in props.headersArr" :key="header">
-          <td class="table-cell">{{ post[header] }}</td>
+          <td @click="openPost(post.postId)" class="table-cell">{{ post[header] }}</td>
         </template>
       </TableRow>
     </transition-group>
     <!--    </tbody>-->
   </table>
+  <modal-posts v-if="isModalOpen" v-model:isModalOpen="isModalOpen" :post-id="postId" />
 </template>
 
 <style scoped>
@@ -70,6 +82,11 @@ function handleSelectValue($event: HTMLSelectElement, header: string) {
   border: 1px solid black;
   border-collapse: collapse;
   padding: 10px;
+}
+
+.table-row:hover {
+  background-color: #e0e0e0;
+  transition: 0.3s;
 }
 
 .header-options {
@@ -103,6 +120,7 @@ function handleSelectValue($event: HTMLSelectElement, header: string) {
 .fade-move {
   transition: transform 0.5s;
 }
+
 .highlight {
   background-color: yellow;
   font-weight: bold;
