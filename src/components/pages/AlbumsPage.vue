@@ -50,6 +50,7 @@ function openModalAlbum(id) {
     v-model:isOpenModalAlbum="isOpenModalAlbum"
     :albumId="albumId"
   ></modal-albums>
+  <pagination :total-pages="albumsArr.length"></pagination>
 </template>
 
 <style scoped>

@@ -144,14 +144,16 @@ const filterTableposts = computed(() => {
     v-model:inputVal="inputVal"
     :headersArr="headersArr"
   ></select-input>
-  <table-with-pagination
-    :mergedposts="filterTableposts"
-    :headers-arr="headersArr"
-    :sort-value="sort"
-    :input-val="inputVal"
-    :selected-main-header="selectedMainHeader"
-    @getSortFromParent="getSorting"
-  ></table-with-pagination>
+  <table :filterTableposts="filterTableposts" :headersArr="headersArr"></table>
+  <pagination></pagination>
+  <!--  <table-with-pagination-->
+  <!--    :mergedposts="filterTableposts"-->
+  <!--    :headers-arr="headersArr"-->
+  <!--    :sort-value="sort"-->
+  <!--    :input-val="inputVal"-->
+  <!--    :selected-main-header="selectedMainHeader"-->
+  <!--    @getSortFromParent="getSorting"-->
+  <!--  ></table-with-pagination>-->
 </template>
 
 <style scoped></style>

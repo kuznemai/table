@@ -2,6 +2,7 @@
 import PostsPage from '@/components/pages/PostsPage.vue';
 import { ref } from 'vue';
 import AlbumsPage from '@/components/pages/AlbumsPage.vue';
+import Pagination from '@/components/Pagination.vue';
 
 interface Post {
   userId: number;

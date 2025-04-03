@@ -1,15 +1,10 @@
 <script setup lang="ts">
-import Table from '@/components/Table.vue';
 import { computed, ref } from 'vue';
-interface Props {
-  mergedposts: Merged[];
-  headersArr: string[];
-  sortValue: { sortBy: string; header: string };
-  inputVal: string;
-  selectedMainHeader: string;
-}
 
-const props = defineProps<Props>();
+const props = defineProps({
+  totalPages: Number,
+});
+
 const currentPage = ref<number>(1);
 const postsPerPage = 25;
 const amountOfPages = computed(() => Math.ceil(props.mergedposts.length / postsPerPage));
@@ -45,12 +40,6 @@ function getSorting(payload: { sortBy: string; header: string }) {
 </script>
 
 <template>
-  <Table
-    :paginatedposts="paginatedposts"
-    :headersArr="headersArr"
-    @getSortFromParent="getSorting"
-    :sort-value="sortValue"
-  ></Table>
   <div class="pagination-buttons">
     <button class="pagination-button" @click="previousPage()"><</button>
     <button
