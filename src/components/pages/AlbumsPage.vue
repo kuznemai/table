@@ -21,7 +21,6 @@ onMounted(getAlbums);
 const isOpenModalAlbum = ref(false);
 const albumId = ref();
 function openModalAlbum(id) {
-  alert('opppa');
   albumId.value = id;
   isOpenModalAlbum.value = true;
 }
@@ -49,7 +48,7 @@ function openModalAlbum(id) {
   <modal-albums
     v-if="isOpenModalAlbum"
     v-model:isOpenModalAlbum="isOpenModalAlbum"
-    :album.id="albumId"
+    :albumId="albumId"
   ></modal-albums>
 </template>
 

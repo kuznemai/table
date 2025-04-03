@@ -5,24 +5,27 @@ const props = defineProps({
   isOpenModalAlbum: Boolean,
   albumId: Number,
 });
+console.log('albumId.value', props.albumId);
 const emit = defineEmits(['update:isOpenModalAlbum']);
 function closeModalAlbum() {
   emit('update:isOpenModalAlbum', false);
 }
-const albums = ref([]);
+const photos = ref([]);
 async function getComments() {
   try {
     const response = await fetch('https://jsonplaceholder.typicode.com/photos');
     if (response.ok) {
       const data = await response.json();
-      console.log('hghghghghghgh', data);
-      albums.value = data.filter((elem) => elem.albumId === props.albumId);
+      console.log('ttttttttt', data);
+      photos.value = data.filter((elem) => elem.albumId === props.albumId);
+      console.log('photosvalue', photos.value);
     }
   } catch (err) {
     console.log('Error');
   }
 }
-onMounted(() => getComments());
+watch(() => props.albumId, getComments);
+onMounted(getComments);
 </script>
 
 <template>
@@ -35,7 +38,9 @@ onMounted(() => getComments());
             <h4>PostId :</h4>
           </div>
           <div class="modal-body">
-            <p v-for="album in albums" :key="album.id" class="modal-body-elem">{{ album.title }}</p>
+            <p v-for="photo in photos" :key="photo.id" class="modal-body-elem">
+              Photo ID : {{ photo.id }}, Photo title: {{ photo.title }}, Photo URL: {{ photo.url }}
+            </p>
             <br />
           </div>
           <div class="modal-footer">
@@ -61,9 +66,11 @@ onMounted(() => getComments());
 
 .modal-container {
   width: 400px;
+  max-height: 80vh; /* Ограничение высоты */
   padding: 20px;
   background-color: #ffffff;
   border-radius: 10px;
+  overflow-y: auto; /* Прокрутка при переполнении */
 }
 
 .close-button {
@@ -74,6 +81,7 @@ onMounted(() => getComments());
   color: #ffffff;
   cursor: pointer;
 }
+
 .modal-body-elem {
   margin-bottom: 5px;
   border-bottom: 1px solid #8c8c8c;
