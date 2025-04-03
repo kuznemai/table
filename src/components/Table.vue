@@ -1,26 +1,90 @@
 <script setup lang="ts">
 import TableRow from '@/components/TableRow.vue';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import ModalPosts from '@/components/ModalPosts.vue';
+import Pagination from '@/App.vue';
 
 interface Props {
-  paginatedposts: Merged[];
+  mergedposts: Merged[];
   headersArr: string[];
-  sortValue: { sortBy: string; header: string };
+  // sortValue: { sortBy: string; header: string };
   inputVal: string;
   selectedMainHeader: string;
 }
 
-const props = defineProps<Props>();
+const props = defineProps({
+  mergedposts: Array,
+  headersArr: Array,
+  // sortValue: { sortBy: string; header: string };
+  inputVal: String,
+  selectedMainHeader: String,
+});
+const sort = ref({ sortBy: 'lowtohigh', header: 'postId' });
 
-const emit = defineEmits(['getSortFromParent']);
+// const emit = defineEmits(['getSortFromParent']);
+//
+// function handleSelectValue($event: HTMLSelectElement, header: string) {
+//   emit('getSortFromParent', {
+//     sortBy: $event.target.value,
+//     header: header,
+//   });
+// }
+// ------------------Filtering------------------------------------------
 
-function handleSelectValue($event: HTMLSelectElement, header: string) {
-  emit('getSortFromParent', {
-    sortBy: $event.target.value,
+// function getSorting(payload: { sortBy: string; header: string }) {
+//   console.log('payload', payload);
+//   sort.value = payload;
+//   console.log('Cортировка', sort.value);
+// }
+function handleSelectValue(event: Event, header: string) {
+  const target = event.target as HTMLSelectElement;
+  sort.value = {
+    sortBy: target.value,
     header: header,
-  });
+  };
 }
+const isTypeInputNumber = computed(() => ['userId', 'postId'].includes(props.selectedMainHeader));
+
+const filterTableposts = computed(() => {
+  let copymergedposts = [...props.mergedposts];
+
+  const { sortBy: filterBy, header: selectedHeader } = sort.value;
+
+  if (props.inputVal.length !== 0 && props.selectedMainHeader.length !== 0) {
+    if (isTypeInputNumber.value) {
+      console.log('isTypeInputNumber.value', isTypeInputNumber.value);
+      copymergedposts = copymergedposts.filter(
+        (elem) => Number(elem[props.selectedMainHeader]) === Number(props.inputVal)
+      );
+    } else {
+      copymergedposts = copymergedposts.filter((elem) =>
+        elem[props.selectedMainHeader]
+          ?.toString()
+          .toLowerCase()
+          .includes(props.inputVal.toLowerCase())
+      );
+    }
+  }
+
+  if (copymergedposts.length > 0 && typeof copymergedposts[0][selectedHeader] === 'number') {
+    if (filterBy === 'lowtohigh') {
+      copymergedposts.sort((a, b) => a[selectedHeader] - b[selectedHeader]);
+    } else if (filterBy === 'hightolow') {
+      copymergedposts.sort((a, b) => b[selectedHeader] - a[selectedHeader]);
+    }
+  } else if (copymergedposts.length > 0 && typeof copymergedposts[0][selectedHeader] === 'string') {
+    if (filterBy === 'lowtohigh') {
+      copymergedposts.sort((a, b) =>
+        a[selectedHeader].toLowerCase().localeCompare(b[selectedHeader])
+      );
+    } else if (filterBy === 'hightolow') {
+      copymergedposts.sort((a, b) =>
+        b[selectedHeader].toLowerCase().localeCompare(a[selectedHeader])
+      );
+    }
+  }
+  return copymergedposts;
+});
 
 const isModalOpen = ref(false);
 const postId = ref();
@@ -28,6 +92,16 @@ const postId = ref();
 function openPost(id) {
   isModalOpen.value = true;
   postId.value = id;
+}
+
+function highlightMatch(value) {
+  if (!props.inputVal) return value;
+
+  const searchText = props.inputVal.toLowerCase();
+  const originalText = value.toString();
+  const regex = new RegExp(searchText, 'gi');
+
+  return originalText.replace(regex, (match) => `<span class="colorful">${match}</span>`);
 }
 </script>
 
@@ -41,7 +115,7 @@ function openPost(id) {
             <select
               @change="handleSelectValue($event, header)"
               class="select-wrapper"
-              :value="sortValue.header === header ? sortValue.sortBy : 'default'"
+              :value="sort.header === header ? sort.sortBy : 'default'"
             >
               <option value="default">Не выбрано</option>
               <option value="lowtohigh">По возрастанию</option>
@@ -53,18 +127,22 @@ function openPost(id) {
     </thead>
     <!--    <tbody>-->
     <transition-group name="fade" tag="tbody">
-      <TableRow class="table-row" v-for="post in props.paginatedposts" :key="post.postId">
+      <TableRow class="table-row" v-for="post in filterTableposts" :key="post.postId">
         <template v-for="header in props.headersArr" :key="header">
-          <td @click="openPost(post.postId)" class="table-cell">{{ post[header] }}</td>
+          <td
+            @click="openPost(post.postId)"
+            class="table-cell"
+            v-html="highlightMatch(post[header])"
+          ></td>
         </template>
       </TableRow>
     </transition-group>
     <!--    </tbody>-->
   </table>
-  <modal-posts v-if="isModalOpen" v-model:isModalOpen="isModalOpen" :post-id="postId" />
+  <ModalPosts v-if="isModalOpen" v-model:isModalOpen="isModalOpen" :post-id="postId"></ModalPosts>
 </template>
 
-<style scoped>
+<style>
 .table {
   border: 1px solid black;
   padding: 15px;
@@ -121,8 +199,8 @@ function openPost(id) {
   transition: transform 0.5s;
 }
 
-.highlight {
-  background-color: yellow;
+.colorful {
+  background-color: #ffffbe;
   font-weight: bold;
 }
 </style>

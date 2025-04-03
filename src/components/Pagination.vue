@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 const props = defineProps({
-  totalPages: Number,
+  mergedposts: Array,
 });
 
 const currentPage = ref<number>(1);
@@ -10,6 +10,7 @@ const postsPerPage = 25;
 const amountOfPages = computed(() => Math.ceil(props.mergedposts.length / postsPerPage));
 
 const paginatedposts = computed(() => {
+  if (!Array.isArray(props.mergedposts)) return [];
   const start = (currentPage.value - 1) * postsPerPage;
   const end = start + postsPerPage;
   return props.mergedposts.slice(start, end);
@@ -18,30 +19,44 @@ const paginatedposts = computed(() => {
 
 function handlePropagationClick(page: number) {
   currentPage.value = page;
+  sendUpdatedPaginatedPosts();
 }
 
 function nextPage() {
   if (currentPage.value !== Math.ceil(props.mergedposts.length / postsPerPage)) {
     currentPage.value++;
+    handlePropagationClick(currentPage.value);
   }
 }
 
 function previousPage() {
   if (currentPage.value !== 1) {
     currentPage.value--;
+    handlePropagationClick(currentPage.value);
   }
 }
 
-const emit = defineEmits(['getSortFromParent']);
-
-function getSorting(payload: { sortBy: string; header: string }) {
-  emit('getSortFromParent', payload);
+const emit = defineEmits(['paginatedposts']);
+function sendUpdatedPaginatedPosts() {
+  emit('paginatedposts', paginatedposts.value);
 }
+watch(
+  () => props.mergedposts,
+  () => {
+    sendUpdatedPaginatedPosts();
+  }
+);
+
+// const emit = defineEmits(['getSortFromParent']);
+//
+// function getSorting(payload: { sortBy: string; header: string }) {
+//   emit('getSortFromParent', payload);
+// }
 </script>
 
 <template>
   <div class="pagination-buttons">
-    <button class="pagination-button" @click="previousPage()"><</button>
+    <button class="pagination-button" @click="previousPage"><</button>
     <button
       class="pagination-button"
       :class="[currentPage === page ? 'active' : '']"
@@ -51,7 +66,7 @@ function getSorting(payload: { sortBy: string; header: string }) {
     >
       {{ page }}
     </button>
-    <button class="pagination-button" @click="nextPage()">></button>
+    <button class="pagination-button" @click="nextPage">></button>
   </div>
 </template>
 

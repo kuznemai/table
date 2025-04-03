@@ -2,6 +2,7 @@
 import TableRow from '@/components/TableRow.vue';
 import { onMounted, ref } from 'vue';
 import ModalAlbums from '@/components/ModalAlbums.vue';
+import Pagination from '@/components/Pagination.vue';
 
 const albumsArr = ref([]);
 
@@ -24,6 +25,12 @@ function openModalAlbum(id) {
   albumId.value = id;
   isOpenModalAlbum.value = true;
 }
+
+const paginated = ref([]);
+function getPaginatedPosts(paginatedPosts) {
+  paginated.value = paginatedPosts;
+  console.log('paginated.valuepaginated.value', paginated.value);
+}
 </script>
 
 <template>
@@ -36,21 +43,21 @@ function openModalAlbum(id) {
       </tr>
     </thead>
     <tbody>
-      <table-row v-for="album in albumsArr" :key="album.id" @click="openModalAlbum(album.id)">
+      <TableRow v-for="album in paginated" :key="album.id" @click="openModalAlbum(album.id)">
         <template #default>
           <td>{{ album.userId }}</td>
           <td>{{ album.id }}</td>
           <td>{{ album.title }}</td>
         </template>
-      </table-row>
+      </TableRow>
     </tbody>
   </table>
-  <modal-albums
+  <ModalAlbums
     v-if="isOpenModalAlbum"
     v-model:isOpenModalAlbum="isOpenModalAlbum"
     :albumId="albumId"
-  ></modal-albums>
-  <pagination :total-pages="albumsArr.length"></pagination>
+  ></ModalAlbums>
+  <Pagination :mergedposts="albumsArr" @paginatedposts="getPaginatedPosts"></Pagination>
 </template>
 
 <style scoped>

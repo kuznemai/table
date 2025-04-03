@@ -2,6 +2,8 @@
 import TableWithPagination from '../TableWithPagination.vue';
 import { onMounted, ref, computed } from 'vue';
 import SelectInput from '../SelectInput.vue';
+import Table from '@/components/Table.vue';
+import Pagination from '@/components/Pagination.vue';
 
 interface Post {
   userId: number;
@@ -29,7 +31,7 @@ interface User {
 const posts = ref<Post[]>([]);
 const users = ref<User[]>([]);
 const mergedposts = ref<Merged[]>([]);
-const sort = ref({ sortBy: 'lowtohigh', header: 'postId' });
+// const sort = ref({ sortBy: 'lowtohigh', header: 'postId' });
 const headersArr = ref<string[]>([]);
 
 const selectedMainHeader = ref('');
@@ -87,55 +89,10 @@ function mergeUsers() {
   headersArr.value = Object.keys(mergedposts.value[0]);
 }
 
-// ------------------Filtering------------------------------------------
-
-function getSorting(payload: { sortBy: string; header: string }) {
-  console.log('payload', payload);
-  sort.value = payload;
-  console.log('Cортировка', sort.value);
+const paginated = ref([]);
+function getPaginatedPosts(paginatedPosts) {
+  paginated.value = paginatedPosts;
 }
-const isTypeInputNumber = computed(() => ['userId', 'postId'].includes(selectedMainHeader.value));
-
-const filterTableposts = computed(() => {
-  let copymergedposts = [...mergedposts.value];
-
-  const { sortBy: filterBy, header: selectedHeader } = sort.value;
-
-  if (inputVal.value.length !== 0 && selectedMainHeader.value.length !== 0) {
-    if (isTypeInputNumber.value) {
-      console.log('isTypeInputNumber.value', isTypeInputNumber.value);
-      copymergedposts = copymergedposts.filter(
-        (elem) => Number(elem[selectedMainHeader.value]) === Number(inputVal.value)
-      );
-    } else {
-      copymergedposts = copymergedposts.filter((elem) =>
-        elem[selectedMainHeader.value]
-          ?.toString()
-          .toLowerCase()
-          .includes(inputVal.value.toLowerCase())
-      );
-    }
-  }
-
-  if (copymergedposts.length > 0 && typeof copymergedposts[0][selectedHeader] === 'number') {
-    if (filterBy === 'lowtohigh') {
-      copymergedposts.sort((a, b) => a[selectedHeader] - b[selectedHeader]);
-    } else if (filterBy === 'hightolow') {
-      copymergedposts.sort((a, b) => b[selectedHeader] - a[selectedHeader]);
-    }
-  } else if (copymergedposts.length > 0 && typeof copymergedposts[0][selectedHeader] === 'string') {
-    if (filterBy === 'lowtohigh') {
-      copymergedposts.sort((a, b) =>
-        a[selectedHeader].toLowerCase().localeCompare(b[selectedHeader])
-      );
-    } else if (filterBy === 'hightolow') {
-      copymergedposts.sort((a, b) =>
-        b[selectedHeader].toLowerCase().localeCompare(a[selectedHeader])
-      );
-    }
-  }
-  return copymergedposts;
-});
 </script>
 
 <template>
@@ -144,8 +101,13 @@ const filterTableposts = computed(() => {
     v-model:inputVal="inputVal"
     :headersArr="headersArr"
   ></select-input>
-  <table :filterTableposts="filterTableposts" :headersArr="headersArr"></table>
-  <pagination></pagination>
+  <Table
+    :mergedposts="paginated"
+    :headersArr="headersArr"
+    :selectedMainHeader="selectedMainHeader"
+    :inputVal="inputVal"
+  ></Table>
+  <Pagination :mergedposts="mergedposts" @paginatedposts="getPaginatedPosts"></Pagination>
   <!--  <table-with-pagination-->
   <!--    :mergedposts="filterTableposts"-->
   <!--    :headers-arr="headersArr"-->
@@ -156,4 +118,28 @@ const filterTableposts = computed(() => {
   <!--  ></table-with-pagination>-->
 </template>
 
-<style scoped></style>
+<style scoped>
+.pagination-buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  padding-top: 30px;
+}
+
+.pagination-button {
+  width: 40px;
+  height: 40px;
+  border: 1px solid black;
+  border-radius: 5px;
+  margin: 5px;
+}
+
+.pagination-button:hover {
+  background-color: #cccccc;
+  transition: 0.3s;
+}
+
+.active {
+  background-color: #8c8c8c;
+}
+</style>
