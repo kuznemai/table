@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
+import Avatar from 'vue3-avatar';
 
 const props = defineProps({
   isModalOpen: Boolean,
@@ -34,10 +35,10 @@ onMounted(() => getComments());
             <h2>Post details</h2>
             <h4>PostId : {{ props.postId }}</h4>
           </div>
-          <div class="modal-body">
-            <p v-for="comment in comments" :key="comment.id" class="modal-body-elem">
-              Comment from {{ comment.email }} : {{ comment.name }}
-            </p>
+          <div class="modal-body" v-for="comment in comments" :key="comment.id">
+            <avatar :name="comment.email"></avatar>
+            <p class="modal-body-elem">Author: {{ comment.email }}</p>
+            <p class="modal-body-elem">Comment: {{ comment.body }}</p>
             <br />
           </div>
           <div class="modal-footer">
@@ -63,9 +64,11 @@ onMounted(() => getComments());
 
 .modal-container {
   width: 400px;
+  max-height: 80vh;
   padding: 20px;
   background-color: #ffffff;
   border-radius: 10px;
+  overflow-y: auto;
 }
 
 .close-button {
@@ -75,6 +78,13 @@ onMounted(() => getComments());
   border-radius: 5px;
   color: #ffffff;
   cursor: pointer;
+}
+
+.modal-body {
+  border: 1px solid #6b6b6b;
+  border-radius: 10px;
+  padding: 10px;
+  margin: 20px;
 }
 .modal-body-elem {
   margin-bottom: 5px;

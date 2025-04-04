@@ -2,18 +2,17 @@
 import { computed, ref, watch } from 'vue';
 
 const props = defineProps({
-  mergedposts: Array,
+  filteredPosts: Array,
 });
 
 const currentPage = ref<number>(1);
 const postsPerPage = 25;
-const amountOfPages = computed(() => Math.ceil(props.mergedposts.length / postsPerPage));
+const amountOfPages = computed(() => Math.ceil(props.filteredPosts.length / postsPerPage));
 
 const paginatedposts = computed(() => {
-  if (!Array.isArray(props.mergedposts)) return [];
   const start = (currentPage.value - 1) * postsPerPage;
   const end = start + postsPerPage;
-  return props.mergedposts.slice(start, end);
+  return props.filteredPosts.slice(start, end);
   console.log('paginatedposts.value', paginatedposts.value);
 });
 
@@ -23,7 +22,7 @@ function handlePropagationClick(page: number) {
 }
 
 function nextPage() {
-  if (currentPage.value !== Math.ceil(props.mergedposts.length / postsPerPage)) {
+  if (currentPage.value !== Math.ceil(props.filteredPosts.length / postsPerPage)) {
     currentPage.value++;
     handlePropagationClick(currentPage.value);
   }
@@ -41,7 +40,7 @@ function sendUpdatedPaginatedPosts() {
   emit('paginatedposts', paginatedposts.value);
 }
 watch(
-  () => props.mergedposts,
+  () => props.filteredPosts,
   () => {
     sendUpdatedPaginatedPosts();
   }

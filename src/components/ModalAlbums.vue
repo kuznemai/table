@@ -11,14 +11,20 @@ function closeModalAlbum() {
   emit('update:isOpenModalAlbum', false);
 }
 const photos = ref([]);
+const urls = ref([]);
 async function getComments() {
   try {
     const response = await fetch('https://jsonplaceholder.typicode.com/photos');
     if (response.ok) {
       const data = await response.json();
       console.log('ttttttttt', data);
+
       photos.value = data.filter((elem) => elem.albumId === props.albumId);
-      console.log('photosvalue', photos.value);
+      // photos.value = filtered.map((el) => ({
+      //   ...el,
+      //   url: `https://picsum.photos/seed/${photo.id}/70/70`,
+      // }));
+      // console.log('photosvalue', photos.value);
     }
   } catch (err) {
     console.log('Error');
@@ -35,12 +41,12 @@ onMounted(getComments);
         <div class="modal-container">
           <div class="modal-header">
             <h2>Post details</h2>
-            <h4>PostId :</h4>
           </div>
-          <div class="modal-body">
-            <p v-for="photo in photos" :key="photo.id" class="modal-body-elem">
+          <div class="modal-body" v-for="photo in photos" :key="photo.id">
+            <p class="modal-body-elem">
               Photo ID : {{ photo.id }}, Photo title: {{ photo.title }}, Photo URL: {{ photo.url }}
             </p>
+            <!--            <img :src="photo.url" />-->
             <br />
           </div>
           <div class="modal-footer">
@@ -66,11 +72,11 @@ onMounted(getComments);
 
 .modal-container {
   width: 400px;
-  max-height: 80vh; /* Ограничение высоты */
+  max-height: 80vh;
   padding: 20px;
   background-color: #ffffff;
   border-radius: 10px;
-  overflow-y: auto; /* Прокрутка при переполнении */
+  overflow-y: auto;
 }
 
 .close-button {

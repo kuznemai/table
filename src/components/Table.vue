@@ -83,6 +83,7 @@ const filterTableposts = computed(() => {
       );
     }
   }
+  emit('filteredposts', copymergedposts);
   return copymergedposts;
 });
 
@@ -103,6 +104,8 @@ function highlightMatch(value) {
 
   return originalText.replace(regex, (match) => `<span class="colorful">${match}</span>`);
 }
+
+const emit = defineEmits(['filteredposts']);
 </script>
 
 <template>

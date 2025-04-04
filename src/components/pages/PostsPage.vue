@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import TableWithPagination from '../TableWithPagination.vue';
 import { onMounted, ref, computed } from 'vue';
 import SelectInput from '../SelectInput.vue';
 import Table from '@/components/Table.vue';
 import Pagination from '@/components/Pagination.vue';
+import { createLogger } from 'vite';
 
 interface Post {
   userId: number;
@@ -72,6 +72,7 @@ async function getUserData() {
 onMounted(async () => {
   await Promise.all([getData(), getUserData()]);
   mergeUsers();
+  filteredPosts.value = mergedposts.value;
 });
 
 function mergeUsers() {
@@ -92,7 +93,21 @@ function mergeUsers() {
 const paginated = ref([]);
 function getPaginatedPosts(paginatedPosts) {
   paginated.value = paginatedPosts;
+  console.log('paginated.value', paginated.value);
 }
+
+const filteredPosts = ref([]);
+
+function handleFilteredPosts(filteredData) {
+  filteredPosts.value = filteredData;
+  console.log('filteredPosts.value', filteredPosts.value);
+}
+
+// const currentValue = computed(() => {
+//   if (paginated.value.length > 0) return paginated.value;
+//   if (filteredPosts.value.length > 0) return filteredPosts.value;
+//   return mergedposts.value;
+// });
 </script>
 
 <template>
@@ -102,12 +117,16 @@ function getPaginatedPosts(paginatedPosts) {
     :headersArr="headersArr"
   ></select-input>
   <Table
-    :mergedposts="paginated"
+    :mergedposts="paginated.length > 0 ? paginated : mergedposts"
     :headersArr="headersArr"
     :selectedMainHeader="selectedMainHeader"
     :inputVal="inputVal"
+    @filteredposts="handleFilteredPosts"
   ></Table>
-  <Pagination :mergedposts="mergedposts" @paginatedposts="getPaginatedPosts"></Pagination>
+  <Pagination
+    :filteredPosts="filteredPosts.length > 0 ? filteredPosts : mergedposts"
+    @paginatedposts="getPaginatedPosts"
+  ></Pagination>
   <!--  <table-with-pagination-->
   <!--    :mergedposts="filterTableposts"-->
   <!--    :headers-arr="headersArr"-->
