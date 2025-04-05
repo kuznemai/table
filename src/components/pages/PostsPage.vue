@@ -31,7 +31,7 @@ interface User {
 const posts = ref<Post[]>([]);
 const users = ref<User[]>([]);
 const mergedposts = ref<Merged[]>([]);
-// const sort = ref({ sortBy: 'lowtohigh', header: 'postId' });
+const sort = ref({ sortBy: 'lowtohigh', header: 'postId' });
 const headersArr = ref<string[]>([]);
 
 const selectedMainHeader = ref('');
@@ -89,19 +89,24 @@ function mergeUsers() {
 
   headersArr.value = Object.keys(mergedposts.value[0]);
 }
-
-const paginated = ref([]);
-function getPaginatedPosts(paginatedPosts) {
-  paginated.value = paginatedPosts;
-  console.log('paginated.value', paginated.value);
+function getSorting(payload: { sortBy: string; header: string }) {
+  console.log('payload', payload);
+  sort.value = payload;
+  console.log('Cортировка', sort.value);
 }
 
-const filteredPosts = ref([]);
+// const paginated = ref([]);
+// function getPaginatedPosts(paginatedPosts) {
+//   paginated.value = paginatedPosts;
+//   console.log('paginated.value', paginated.value);
+// }
 
-function handleFilteredPosts(filteredData) {
-  filteredPosts.value = filteredData;
-  console.log('filteredPosts.value', filteredPosts.value);
-}
+// const filteredPosts = ref([]);
+//
+// function handleFilteredPosts(filteredData) {
+//   filteredPosts.value = filteredData;
+//   console.log('filteredPosts.value', filteredPosts.value);
+// }
 
 // const currentValue = computed(() => {
 //   if (paginated.value.length > 0) return paginated.value;
@@ -116,25 +121,25 @@ function handleFilteredPosts(filteredData) {
     v-model:inputVal="inputVal"
     :headersArr="headersArr"
   ></select-input>
-  <Table
-    :mergedposts="paginated.length > 0 ? paginated : mergedposts"
-    :headersArr="headersArr"
-    :selectedMainHeader="selectedMainHeader"
-    :inputVal="inputVal"
-    @filteredposts="handleFilteredPosts"
-  ></Table>
-  <Pagination
-    :filteredPosts="filteredPosts.length > 0 ? filteredPosts : mergedposts"
-    @paginatedposts="getPaginatedPosts"
-  ></Pagination>
-  <!--  <table-with-pagination-->
-  <!--    :mergedposts="filterTableposts"-->
-  <!--    :headers-arr="headersArr"-->
-  <!--    :sort-value="sort"-->
-  <!--    :input-val="inputVal"-->
-  <!--    :selected-main-header="selectedMainHeader"-->
-  <!--    @getSortFromParent="getSorting"-->
-  <!--  ></table-with-pagination>-->
+  <!--  <Table-->
+  <!--    :mergedposts="paginated.length > 0 ? paginated : mergedposts"-->
+  <!--    :headersArr="headersArr"-->
+  <!--    :selectedMainHeader="selectedMainHeader"-->
+  <!--    :inputVal="inputVal"-->
+  <!--    @filteredposts="handleFilteredPosts"-->
+  <!--  ></Table>-->
+  <!--  <Pagination-->
+  <!--    :filteredPosts="filteredPosts.length > 0 ? filteredPosts : mergedposts"-->
+  <!--    @paginatedposts="getPaginatedPosts"-->
+  <!--  ></Pagination>-->
+  <table-with-pagination
+    :mergedposts="mergedposts"
+    :headers-arr="headersArr"
+    :sort-value="sort"
+    :input-val="inputVal"
+    :selected-main-header="selectedMainHeader"
+    @getSortFromParent="getSorting"
+  ></table-with-pagination>
 </template>
 
 <style scoped>
