@@ -3,8 +3,15 @@ import TableRow from '@/components/TableRow.vue';
 import { onMounted, ref } from 'vue';
 import ModalAlbums from '@/components/ModalAlbums.vue';
 import Pagination from '@/components/Pagination.vue';
+import Table from '@/components/Table.vue';
+import SelectInput from '@/components/SelectInput.vue';
 
 const albumsArr = ref([]);
+const headersArr = ref([]);
+const selectedMainHeader = ref('');
+const inputVal = ref('');
+
+const sort = ref({ sortBy: 'lowtohigh', header: 'postId' });
 
 async function getAlbums() {
   try {
@@ -12,6 +19,8 @@ async function getAlbums() {
     if (response.ok) {
       albumsArr.value = await response.json();
     }
+    headersArr.value = Object.values(Object.keys(albumsArr.value[0]));
+    console.log('headersArr.value', headersArr.value);
   } catch (error) {
     console.error('Error:', error);
   }
@@ -34,30 +43,38 @@ function getPaginatedPosts(paginatedPosts) {
 </script>
 
 <template>
-  <table>
-    <thead>
-      <tr>
-        <th>UserID</th>
-        <th>Id</th>
-        <th>Title</th>
-      </tr>
-    </thead>
-    <tbody>
-      <TableRow v-for="album in paginated" :key="album.id" @click="openModalAlbum(album.id)">
-        <template #default>
-          <td>{{ album.userId }}</td>
-          <td>{{ album.id }}</td>
-          <td>{{ album.title }}</td>
-        </template>
-      </TableRow>
-    </tbody>
-  </table>
-  <ModalAlbums
-    v-if="isOpenModalAlbum"
-    v-model:isOpenModalAlbum="isOpenModalAlbum"
-    :albumId="albumId"
-  ></ModalAlbums>
-  <Pagination :mergedposts="albumsArr" @paginatedposts="getPaginatedPosts"></Pagination>
+  <SelectInput
+    v-model:selectedMainHeader="selectedMainHeader"
+    v-model:inputVal="inputVal"
+    :headersArr="headersArr"
+  ></SelectInput>
+  <Table :mergedposts="albumsArr" :headers-arr="headersArr" :sort-value="sort"></Table>
+  <!--  <Pagination :filtered-posts="filterTableposts" @paginatedposts="getPaginatedPosts"></Pagination>-->
+
+  <!--  <table>-->
+  <!--    <thead>-->
+  <!--      <tr>-->
+  <!--        <th>UserID</th>-->
+  <!--        <th>Id</th>-->
+  <!--        <th>Title</th>-->
+  <!--      </tr>-->
+  <!--    </thead>-->
+  <!--    <tbody>-->
+  <!--      <TableRow v-for="album in paginated" :key="album.id" @click="openModalAlbum(album.id)">-->
+  <!--        <template #default>-->
+  <!--          <td>{{ album.userId }}</td>-->
+  <!--          <td>{{ album.id }}</td>-->
+  <!--          <td>{{ album.title }}</td>-->
+  <!--        </template>-->
+  <!--      </TableRow>-->
+  <!--    </tbody>-->
+  <!--  </table>-->
+  <!--  <ModalAlbums-->
+  <!--    v-if="isOpenModalAlbum"-->
+  <!--    v-model:isOpenModalAlbum="isOpenModalAlbum"-->
+  <!--    :albumId="albumId"-->
+  <!--  ></ModalAlbums>-->
+  <!--  <Pagination :mergedposts="albumsArr" @paginatedposts="getPaginatedPosts"></Pagination>-->
 </template>
 
 <style scoped>

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue';
+import TableWithPagination from '@/components/TableWithPagination.vue';
 import SelectInput from '../SelectInput.vue';
 import Table from '@/components/Table.vue';
 import Pagination from '@/components/Pagination.vue';
-import { createLogger } from 'vite';
 
 interface Post {
   userId: number;
@@ -31,11 +31,11 @@ interface User {
 const posts = ref<Post[]>([]);
 const users = ref<User[]>([]);
 const mergedposts = ref<Merged[]>([]);
-const sort = ref({ sortBy: 'lowtohigh', header: 'postId' });
+// const sort = ref({ sortBy: 'lowtohigh', header: 'postId' });
 const headersArr = ref<string[]>([]);
 
-const selectedMainHeader = ref('');
-const inputVal = ref('');
+// const selectedMainHeader = ref('');
+// const inputVal = ref('');
 
 async function getData() {
   try {
@@ -72,7 +72,7 @@ async function getUserData() {
 onMounted(async () => {
   await Promise.all([getData(), getUserData()]);
   mergeUsers();
-  filteredPosts.value = mergedposts.value;
+  // filteredPosts.value = mergedposts.value;
 });
 
 function mergeUsers() {
@@ -89,11 +89,11 @@ function mergeUsers() {
 
   headersArr.value = Object.keys(mergedposts.value[0]);
 }
-function getSorting(payload: { sortBy: string; header: string }) {
-  console.log('payload', payload);
-  sort.value = payload;
-  console.log('Cортировка', sort.value);
-}
+// function getSorting(payload: { sortBy: string; header: string }) {
+//   console.log('payload', payload);
+//   sort.value = payload;
+//   console.log('Cортировка', sort.value);
+// }
 
 // const paginated = ref([]);
 // function getPaginatedPosts(paginatedPosts) {
@@ -116,11 +116,11 @@ function getSorting(payload: { sortBy: string; header: string }) {
 </script>
 
 <template>
-  <select-input
-    v-model:selectedMainHeader="selectedMainHeader"
-    v-model:inputVal="inputVal"
-    :headersArr="headersArr"
-  ></select-input>
+  <!--  <select-input-->
+  <!--    v-model:selectedMainHeader="selectedMainHeader"-->
+  <!--    v-model:inputVal="inputVal"-->
+  <!--    :headersArr="headersArr"-->
+  <!--  ></select-input>-->
   <!--  <Table-->
   <!--    :mergedposts="paginated.length > 0 ? paginated : mergedposts"-->
   <!--    :headersArr="headersArr"-->
@@ -132,14 +132,11 @@ function getSorting(payload: { sortBy: string; header: string }) {
   <!--    :filteredPosts="filteredPosts.length > 0 ? filteredPosts : mergedposts"-->
   <!--    @paginatedposts="getPaginatedPosts"-->
   <!--  ></Pagination>-->
-  <table-with-pagination
-    :mergedposts="mergedposts"
-    :headers-arr="headersArr"
-    :sort-value="sort"
-    :input-val="inputVal"
-    :selected-main-header="selectedMainHeader"
-    @getSortFromParent="getSorting"
-  ></table-with-pagination>
+  <TableWithPagination :mergedposts="mergedposts" :headers-arr="headersArr"></TableWithPagination>
+  <!--    :sort-value="sort"-->
+  <!--    :input-val="inputVal"-->
+  <!--    :selected-main-header="selectedMainHeader"-->
+  <!--    @getSortFromParent="getSorting"-->
 </template>
 
 <style scoped>

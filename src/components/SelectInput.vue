@@ -1,26 +1,29 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 const props = defineProps({
   inputVal: String,
   selectedMainHeader: String,
   headersArr: Array,
 });
+
 const emit = defineEmits(['update:selectedMainHeader', 'update:inputVal']);
-function handleSelect($event: HTMLSelectElement) {
-  emit('update:selectedMainHeader', $event.target.value);
+function handleSelect(event: Event) {
+  const target = event.target as HTMLSelectElement;
+  emit('update:selectedMainHeader', target.value);
 }
 
-function handleInput($event: HTMLInputElement) {
-  emit('update:inputVal', $event.target.value);
+function handleInput(event: Event) {
+  const target = event.target as HTMLInputElement;
+  emit('update:inputVal', target.value);
 }
 
-const isTypeInputNumber = computed(() => ['userId', 'postId'].includes(props.selectedMainHeader));
+// const isTypeInputNumber = computed(() => ['userId', 'postId'].includes(selectedMainHeader));
 </script>
 
 <template>
   <div class="select-input-container">
-    <select class="select-wrapperr" @change="handleSelect" :value="selectedMainHeader">
+    <select class="select-wrapperr" @change="handleSelect" :value="props.selectedMainHeader">
       <option
         v-for="header in props.headersArr"
         :key="header"
@@ -32,7 +35,7 @@ const isTypeInputNumber = computed(() => ['userId', 'postId'].includes(props.sel
     </select>
     <div class="">
       <input
-        :value="inputVal"
+        :value="props.inputVal"
         @input="handleInput"
         class="input-wrapper"
         :type="isTypeInputNumber ? 'number' : 'text'"

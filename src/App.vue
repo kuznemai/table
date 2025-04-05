@@ -2,7 +2,6 @@
 import PostsPage from '@/components/pages/PostsPage.vue';
 import { ref } from 'vue';
 import AlbumsPage from '@/components/pages/AlbumsPage.vue';
-import Pagination from '@/components/Pagination.vue';
 
 interface Post {
   userId: number;
@@ -27,7 +26,7 @@ interface User {
   };
 }
 
-const chosenTab = ref('posts');
+const chosenTab = ref('albums');
 </script>
 
 <template>
@@ -45,8 +44,8 @@ const chosenTab = ref('posts');
     </div>
   </div>
 
-  <posts-page v-if="chosenTab === 'posts'" />
-  <albums-page v-if="chosenTab === 'albums'" />
+  <PostsPage v-if="chosenTab === 'posts'" />
+  <AlbumsPage v-if="chosenTab === 'albums'" />
 </template>
 
 <style scoped>

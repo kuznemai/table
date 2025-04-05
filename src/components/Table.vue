@@ -2,33 +2,31 @@
 import TableRow from '@/components/TableRow.vue';
 import { ref, computed } from 'vue';
 import ModalPosts from '@/components/ModalPosts.vue';
-import Pagination from '@/App.vue';
 
-interface Props {
-  mergedposts: Merged[];
-  headersArr: string[];
-  // sortValue: { sortBy: string; header: string };
-  inputVal: string;
-  selectedMainHeader: string;
-}
+// interface Props {
+//   mergedposts: Merged[];
+//   headersArr: string[];
+//   // sortValue: { sortBy: string; header: string };
+//   inputVal: string;
+//   selectedMainHeader: string;
+// }
 
 const props = defineProps({
   mergedposts: Array,
   headersArr: Array,
-  // sortValue: { sortBy: string; header: string };
+  sortValue: Object,
   inputVal: String,
   selectedMainHeader: String,
 });
-const sort = ref({ sortBy: 'lowtohigh', header: 'postId' });
 
-// const emit = defineEmits(['getSortFromParent']);
-//
-// function handleSelectValue($event: HTMLSelectElement, header: string) {
-//   emit('getSortFromParent', {
-//     sortBy: $event.target.value,
-//     header: header,
-//   });
-// }
+const emit = defineEmits(['getSortFromParent']);
+
+function handleSelectValue($event: HTMLSelectElement, header: string) {
+  emit('getSortFromParent', {
+    sortBy: $event.target.value,
+    header: header,
+  });
+}
 // ------------------Filtering------------------------------------------
 
 // function getSorting(payload: { sortBy: string; header: string }) {
@@ -36,57 +34,57 @@ const sort = ref({ sortBy: 'lowtohigh', header: 'postId' });
 //   sort.value = payload;
 //   console.log('Cортировка', sort.value);
 // }
-function handleSelectValue(event: Event, header: string) {
-  const target = event.target as HTMLSelectElement;
-  sort.value = {
-    sortBy: target.value,
-    header: header,
-  };
-}
-const isTypeInputNumber = computed(() => ['userId', 'postId'].includes(props.selectedMainHeader));
-
-const filterTableposts = computed(() => {
-  let copymergedposts = [...props.mergedposts];
-
-  const { sortBy: filterBy, header: selectedHeader } = sort.value;
-
-  if (props.inputVal.length !== 0 && props.selectedMainHeader.length !== 0) {
-    if (isTypeInputNumber.value) {
-      console.log('isTypeInputNumber.value', isTypeInputNumber.value);
-      copymergedposts = copymergedposts.filter(
-        (elem) => Number(elem[props.selectedMainHeader]) === Number(props.inputVal)
-      );
-    } else {
-      copymergedposts = copymergedposts.filter((elem) =>
-        elem[props.selectedMainHeader]
-          ?.toString()
-          .toLowerCase()
-          .includes(props.inputVal.toLowerCase())
-      );
-    }
-  }
-
-  if (copymergedposts.length > 0 && typeof copymergedposts[0][selectedHeader] === 'number') {
-    if (filterBy === 'lowtohigh') {
-      copymergedposts.sort((a, b) => a[selectedHeader] - b[selectedHeader]);
-    } else if (filterBy === 'hightolow') {
-      copymergedposts.sort((a, b) => b[selectedHeader] - a[selectedHeader]);
-    }
-  } else if (copymergedposts.length > 0 && typeof copymergedposts[0][selectedHeader] === 'string') {
-    if (filterBy === 'lowtohigh') {
-      copymergedposts.sort((a, b) =>
-        a[selectedHeader].toLowerCase().localeCompare(b[selectedHeader])
-      );
-    } else if (filterBy === 'hightolow') {
-      copymergedposts.sort((a, b) =>
-        b[selectedHeader].toLowerCase().localeCompare(a[selectedHeader])
-      );
-    }
-  }
-  emit('filteredposts', copymergedposts);
-  return copymergedposts;
-});
-
+// function handleSelectValue(event: Event, header: string) {
+//   const target = event.target as HTMLSelectElement;
+//   sort.value = {
+//     sortBy: target.value,
+//     header: header,
+//   };
+// }
+// const isTypeInputNumber = computed(() => ['userId', 'postId'].includes(props.selectedMainHeader));
+//
+// const filterTableposts = computed(() => {
+//   let copymergedposts = [...props.mergedposts];
+//
+//   const { sortBy: filterBy, header: selectedHeader } = sort.value;
+//
+//   if (props.inputVal.length !== 0 && props.selectedMainHeader.length !== 0) {
+//     if (isTypeInputNumber.value) {
+//       console.log('isTypeInputNumber.value', isTypeInputNumber.value);
+//       copymergedposts = copymergedposts.filter(
+//         (elem) => Number(elem[props.selectedMainHeader]) === Number(props.inputVal)
+//       );
+//     } else {
+//       copymergedposts = copymergedposts.filter((elem) =>
+//         elem[props.selectedMainHeader]
+//           ?.toString()
+//           .toLowerCase()
+//           .includes(props.inputVal.toLowerCase())
+//       );
+//     }
+//   }
+//
+//   if (copymergedposts.length > 0 && typeof copymergedposts[0][selectedHeader] === 'number') {
+//     if (filterBy === 'lowtohigh') {
+//       copymergedposts.sort((a, b) => a[selectedHeader] - b[selectedHeader]);
+//     } else if (filterBy === 'hightolow') {
+//       copymergedposts.sort((a, b) => b[selectedHeader] - a[selectedHeader]);
+//     }
+//   } else if (copymergedposts.length > 0 && typeof copymergedposts[0][selectedHeader] === 'string') {
+//     if (filterBy === 'lowtohigh') {
+//       copymergedposts.sort((a, b) =>
+//         a[selectedHeader].toLowerCase().localeCompare(b[selectedHeader])
+//       );
+//     } else if (filterBy === 'hightolow') {
+//       copymergedposts.sort((a, b) =>
+//         b[selectedHeader].toLowerCase().localeCompare(a[selectedHeader])
+//       );
+//     }
+//   }
+//   emit('filteredposts', copymergedposts);
+//   return copymergedposts;
+// });
+//
 const isModalOpen = ref(false);
 const postId = ref();
 
@@ -105,7 +103,7 @@ function highlightMatch(value) {
   return originalText.replace(regex, (match) => `<span class="colorful">${match}</span>`);
 }
 
-const emit = defineEmits(['filteredposts']);
+// const emit = defineEmits(['filteredposts']);
 </script>
 
 <template>
@@ -118,7 +116,7 @@ const emit = defineEmits(['filteredposts']);
             <select
               @change="handleSelectValue($event, header)"
               class="select-wrapper"
-              :value="sort.header === header ? sort.sortBy : 'default'"
+              :value="sortValue.header === header ? sortValue.sortBy : 'default'"
             >
               <option value="default">Не выбрано</option>
               <option value="lowtohigh">По возрастанию</option>
@@ -130,7 +128,7 @@ const emit = defineEmits(['filteredposts']);
     </thead>
     <!--    <tbody>-->
     <transition-group name="fade" tag="tbody">
-      <TableRow class="table-row" v-for="post in filterTableposts" :key="post.postId">
+      <TableRow class="table-row" v-for="post in props.mergedposts" :key="post.postId">
         <template v-for="header in props.headersArr" :key="header">
           <td
             @click="openPost(post.postId)"
