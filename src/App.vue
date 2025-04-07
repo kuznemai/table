@@ -31,26 +31,26 @@ const chosenTab = ref('albums');
 
 <template>
   <div class="tabs-container">
-    <!--    <nav>-->
-    <!--      <router-link to="/posts">Главная</router-link>-->
-    <!--      <router-link to="/albums">О нас</router-link>-->
-    <!--    </nav>-->
+    <nav class="tabs">
+      <router-link to="/posts" :class="{ active: $route.path === '/posts' }">Posts</router-link>
+      <router-link to="/albums" :class="{ active: $route.path === '/albums' }">Albums</router-link>
+    </nav>
     <!--    <router-view />-->
-    <div class="tabs">
-      <button @click="chosenTab = 'posts'" :class="{ active: chosenTab === 'posts' }">Posts</button>
-      <button @click="chosenTab = 'albums'" :class="{ active: chosenTab === 'albums' }">
-        Albums
-      </button>
-    </div>
+    <!--    <div class="tabs">-->
+    <!--      <button @click="chosenTab = 'posts'" :class="{ active: chosenTab === 'posts' }">Posts</button>-->
+    <!--      <button @click="chosenTab = 'albums'" :class="{ active: chosenTab === 'albums' }">-->
+    <!--        Albums-->
+    <!--      </button>-->
+    <!--    </div>-->
   </div>
 
-  <PostsPage v-if="chosenTab === 'posts'" />
-  <AlbumsPage v-if="chosenTab === 'albums'" />
+  <!--  <PostsPage v-if="chosenTab === 'posts'" />-->
+  <!--  <AlbumsPage v-if="chosenTab === 'albums'" />-->
+  <router-view />
 </template>
 
 <style scoped>
 .tabs-container {
-  padding: 20px;
 }
 
 .tabs {
@@ -59,9 +59,13 @@ const chosenTab = ref('albums');
   margin-bottom: 20px;
 }
 
-.tabs > button {
+.tabs > * {
   width: 100px;
   height: 40px;
+  color: #000000;
+  font-size: 18px;
+  padding: 5px;
+  text-decoration: none;
 }
 
 .active {

@@ -4,16 +4,9 @@ import AlbumsPage from '@/components/pages/AlbumsPage.vue';
 import PostsPage from '@/components/pages/PostsPage.vue';
 
 const routes = [
-  {
-    path: '/albums',
-    name: 'albums',
-    component: AlbumsPage,
-  },
-  {
-    path: '/posts',
-    name: 'post',
-    component: PostsPage,
-  },
+  { path: '/', redirect: '/posts' },
+  { path: '/posts', component: PostsPage },
+  { path: '/albums', component: AlbumsPage },
 ];
 
 const router = createRouter({

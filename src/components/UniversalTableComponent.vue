@@ -106,6 +106,7 @@ function handlePostId(payload) {
     :sort-value="sort"
     @getSortFromParent="getSorting"
     @sendPostId="handlePostId"
+    :input-val="inputVal"
   ></Table>
   <!--  @getSortFromParent="getSorting"-->
   <!--  :sort-value="sortValue"-->

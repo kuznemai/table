@@ -38,6 +38,7 @@ function openPost(id) {
 
 function highlightMatch(value) {
   if (!props.inputVal) return value;
+  console.log('props.inputVal', props.inputVal);
 
   const searchText = props.inputVal.toLowerCase();
   const originalText = value.toString();
@@ -142,7 +143,6 @@ function highlightMatch(value) {
 }
 
 .colorful {
-  background-color: #ffffbe;
-  font-weight: bold;
+  background-color: #ffda60;
 }
 </style>
