@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import TableRow from '@/components/TableRow.vue';
 import { ref, computed } from 'vue';
-import ModalPosts from '@/components/ModalPosts.vue';
 
 // interface Props {
 //   mergedposts: Merged[];
@@ -19,7 +18,7 @@ const props = defineProps({
   selectedMainHeader: String,
 });
 
-const emit = defineEmits(['getSortFromParent']);
+const emit = defineEmits(['getSortFromParent', 'sendPostId']);
 
 function handleSelectValue($event: HTMLSelectElement, header: string) {
   emit('getSortFromParent', {
@@ -27,70 +26,14 @@ function handleSelectValue($event: HTMLSelectElement, header: string) {
     header: header,
   });
 }
-// ------------------Filtering------------------------------------------
 
-// function getSorting(payload: { sortBy: string; header: string }) {
-//   console.log('payload', payload);
-//   sort.value = payload;
-//   console.log('Cортировка', sort.value);
-// }
-// function handleSelectValue(event: Event, header: string) {
-//   const target = event.target as HTMLSelectElement;
-//   sort.value = {
-//     sortBy: target.value,
-//     header: header,
-//   };
-// }
-// const isTypeInputNumber = computed(() => ['userId', 'postId'].includes(props.selectedMainHeader));
-//
-// const filterTableposts = computed(() => {
-//   let copymergedposts = [...props.mergedposts];
-//
-//   const { sortBy: filterBy, header: selectedHeader } = sort.value;
-//
-//   if (props.inputVal.length !== 0 && props.selectedMainHeader.length !== 0) {
-//     if (isTypeInputNumber.value) {
-//       console.log('isTypeInputNumber.value', isTypeInputNumber.value);
-//       copymergedposts = copymergedposts.filter(
-//         (elem) => Number(elem[props.selectedMainHeader]) === Number(props.inputVal)
-//       );
-//     } else {
-//       copymergedposts = copymergedposts.filter((elem) =>
-//         elem[props.selectedMainHeader]
-//           ?.toString()
-//           .toLowerCase()
-//           .includes(props.inputVal.toLowerCase())
-//       );
-//     }
-//   }
-//
-//   if (copymergedposts.length > 0 && typeof copymergedposts[0][selectedHeader] === 'number') {
-//     if (filterBy === 'lowtohigh') {
-//       copymergedposts.sort((a, b) => a[selectedHeader] - b[selectedHeader]);
-//     } else if (filterBy === 'hightolow') {
-//       copymergedposts.sort((a, b) => b[selectedHeader] - a[selectedHeader]);
-//     }
-//   } else if (copymergedposts.length > 0 && typeof copymergedposts[0][selectedHeader] === 'string') {
-//     if (filterBy === 'lowtohigh') {
-//       copymergedposts.sort((a, b) =>
-//         a[selectedHeader].toLowerCase().localeCompare(b[selectedHeader])
-//       );
-//     } else if (filterBy === 'hightolow') {
-//       copymergedposts.sort((a, b) =>
-//         b[selectedHeader].toLowerCase().localeCompare(a[selectedHeader])
-//       );
-//     }
-//   }
-//   emit('filteredposts', copymergedposts);
-//   return copymergedposts;
-// });
-//
 const isModalOpen = ref(false);
 const postId = ref();
 
 function openPost(id) {
   isModalOpen.value = true;
   postId.value = id;
+  emit('sendPostId', { isModalOpen: isModalOpen.value, postId: postId.value });
 }
 
 function highlightMatch(value) {
@@ -102,8 +45,6 @@ function highlightMatch(value) {
 
   return originalText.replace(regex, (match) => `<span class="colorful">${match}</span>`);
 }
-
-// const emit = defineEmits(['filteredposts']);
 </script>
 
 <template>
@@ -140,7 +81,7 @@ function highlightMatch(value) {
     </transition-group>
     <!--    </tbody>-->
   </table>
-  <ModalPosts v-if="isModalOpen" v-model:isModalOpen="isModalOpen" :post-id="postId"></ModalPosts>
+  <!--  <UniversalModalWindow v-if="isModalOpen" v-model:isModalOpen="isModalOpen" :post-id="postId"></UniversalModalWindow>-->
 </template>
 
 <style>

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
-
 const props = defineProps({
   inputVal: String,
   selectedMainHeader: String,
@@ -17,8 +15,6 @@ function handleInput(event: Event) {
   const target = event.target as HTMLInputElement;
   emit('update:inputVal', target.value);
 }
-
-// const isTypeInputNumber = computed(() => ['userId', 'postId'].includes(selectedMainHeader));
 </script>
 
 <template>

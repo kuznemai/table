@@ -1,23 +1,19 @@
 <script setup lang="ts">
-import TableRow from '@/components/TableRow.vue';
-import { onMounted, ref } from 'vue';
-import ModalAlbums from '@/components/ModalAlbums.vue';
-import Pagination from '@/components/Pagination.vue';
-import Table from '@/components/Table.vue';
-import SelectInput from '@/components/SelectInput.vue';
+import { onMounted, ref, watch } from 'vue';
+import UniversalTableComponent from '@/components/UniversalTableComponent.vue';
 
 const albumsArr = ref([]);
 const headersArr = ref([]);
-const selectedMainHeader = ref('');
-const inputVal = ref('');
-
-const sort = ref({ sortBy: 'lowtohigh', header: 'postId' });
 
 async function getAlbums() {
   try {
     const response = await fetch('https://jsonplaceholder.typicode.com/albums');
     if (response.ok) {
-      albumsArr.value = await response.json();
+      const data = await response.json();
+      albumsArr.value = data.map(({ id, ...rest }) => ({
+        postId: id,
+        ...rest,
+      }));
     }
     headersArr.value = Object.values(Object.keys(albumsArr.value[0]));
     console.log('headersArr.value', headersArr.value);
@@ -28,53 +24,37 @@ async function getAlbums() {
 
 onMounted(getAlbums);
 
-const isOpenModalAlbum = ref(false);
-const albumId = ref();
-function openModalAlbum(id) {
-  albumId.value = id;
-  isOpenModalAlbum.value = true;
+// -------------Data request for modal---------------
+const photos = ref([]);
+const postId = ref();
+function getDataFromTableRow(payload) {
+  console.log('payloadinalbums', payload);
+  postId.value = payload.postId;
+  if (payload.isModalOpen === true) {
+    getComments(payload.postId);
+  }
 }
-
-const paginated = ref([]);
-function getPaginatedPosts(paginatedPosts) {
-  paginated.value = paginatedPosts;
-  console.log('paginated.valuepaginated.value', paginated.value);
+async function getComments(postId: number) {
+  try {
+    const response = await fetch('https://jsonplaceholder.typicode.com/photos');
+    if (response.ok) {
+      const data = await response.json();
+      console.log('hghghghghghgh', data);
+      photos.value = data.filter((elem) => elem.albumId === postId);
+    }
+  } catch (err) {
+    console.log('Error');
+  }
 }
 </script>
 
 <template>
-  <SelectInput
-    v-model:selectedMainHeader="selectedMainHeader"
-    v-model:inputVal="inputVal"
-    :headersArr="headersArr"
-  ></SelectInput>
-  <Table :mergedposts="albumsArr" :headers-arr="headersArr" :sort-value="sort"></Table>
-  <!--  <Pagination :filtered-posts="filterTableposts" @paginatedposts="getPaginatedPosts"></Pagination>-->
-
-  <!--  <table>-->
-  <!--    <thead>-->
-  <!--      <tr>-->
-  <!--        <th>UserID</th>-->
-  <!--        <th>Id</th>-->
-  <!--        <th>Title</th>-->
-  <!--      </tr>-->
-  <!--    </thead>-->
-  <!--    <tbody>-->
-  <!--      <TableRow v-for="album in paginated" :key="album.id" @click="openModalAlbum(album.id)">-->
-  <!--        <template #default>-->
-  <!--          <td>{{ album.userId }}</td>-->
-  <!--          <td>{{ album.id }}</td>-->
-  <!--          <td>{{ album.title }}</td>-->
-  <!--        </template>-->
-  <!--      </TableRow>-->
-  <!--    </tbody>-->
-  <!--  </table>-->
-  <!--  <ModalAlbums-->
-  <!--    v-if="isOpenModalAlbum"-->
-  <!--    v-model:isOpenModalAlbum="isOpenModalAlbum"-->
-  <!--    :albumId="albumId"-->
-  <!--  ></ModalAlbums>-->
-  <!--  <Pagination :mergedposts="albumsArr" @paginatedposts="getPaginatedPosts"></Pagination>-->
+  <UniversalTableComponent
+    :mergedposts="albumsArr"
+    :headers-arr="headersArr"
+    @modal-opened="getDataFromTableRow"
+    :modal-data="photos"
+  ></UniversalTableComponent>
 </template>
 
 <style scoped>

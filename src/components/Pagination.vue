@@ -45,12 +45,6 @@ watch(
     sendUpdatedPaginatedPosts();
   }
 );
-
-// const emit = defineEmits(['getSortFromParent']);
-//
-// function getSorting(payload: { sortBy: string; header: string }) {
-//   emit('getSortFromParent', payload);
-// }
 </script>
 
 <template>

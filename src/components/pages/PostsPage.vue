@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue';
-import TableWithPagination from '@/components/TableWithPagination.vue';
-import SelectInput from '../SelectInput.vue';
-import Table from '@/components/Table.vue';
-import Pagination from '@/components/Pagination.vue';
+import UniversalTableComponent from '@/components/UniversalTableComponent.vue';
 
 interface Post {
   userId: number;
@@ -31,11 +28,8 @@ interface User {
 const posts = ref<Post[]>([]);
 const users = ref<User[]>([]);
 const mergedposts = ref<Merged[]>([]);
-// const sort = ref({ sortBy: 'lowtohigh', header: 'postId' });
 const headersArr = ref<string[]>([]);
-
-// const selectedMainHeader = ref('');
-// const inputVal = ref('');
+const postId = ref();
 
 async function getData() {
   try {
@@ -72,7 +66,7 @@ async function getUserData() {
 onMounted(async () => {
   await Promise.all([getData(), getUserData()]);
   mergeUsers();
-  // filteredPosts.value = mergedposts.value;
+  getComments(postId.value);
 });
 
 function mergeUsers() {
@@ -89,54 +83,40 @@ function mergeUsers() {
 
   headersArr.value = Object.keys(mergedposts.value[0]);
 }
-// function getSorting(payload: { sortBy: string; header: string }) {
-//   console.log('payload', payload);
-//   sort.value = payload;
-//   console.log('Cортировка', sort.value);
-// }
 
-// const paginated = ref([]);
-// function getPaginatedPosts(paginatedPosts) {
-//   paginated.value = paginatedPosts;
-//   console.log('paginated.value', paginated.value);
-// }
+// -------------Data request for modal---------------
+const comments = ref([]);
 
-// const filteredPosts = ref([]);
-//
-// function handleFilteredPosts(filteredData) {
-//   filteredPosts.value = filteredData;
-//   console.log('filteredPosts.value', filteredPosts.value);
-// }
+function getDataFromTableRow(payload) {
+  console.log('ivegotthepayloaaaad', payload);
+  postId.value = payload.postId;
+  if (payload.isModalOpen === true) {
+    getComments(payload.postId);
+  }
+}
+async function getComments(postId: number) {
+  try {
+    const response = await fetch('https://jsonplaceholder.typicode.com/comments');
+    if (response.ok) {
+      const data = await response.json();
+      console.log('hghghghghghgh', data);
+      comments.value = data.filter((elem) => elem.postId === postId);
+    }
+  } catch (err) {
+    console.log('Error');
+  }
+}
 
-// const currentValue = computed(() => {
-//   if (paginated.value.length > 0) return paginated.value;
-//   if (filteredPosts.value.length > 0) return filteredPosts.value;
-//   return mergedposts.value;
-// });
+// onMounted(() => getComments());
 </script>
 
 <template>
-  <!--  <select-input-->
-  <!--    v-model:selectedMainHeader="selectedMainHeader"-->
-  <!--    v-model:inputVal="inputVal"-->
-  <!--    :headersArr="headersArr"-->
-  <!--  ></select-input>-->
-  <!--  <Table-->
-  <!--    :mergedposts="paginated.length > 0 ? paginated : mergedposts"-->
-  <!--    :headersArr="headersArr"-->
-  <!--    :selectedMainHeader="selectedMainHeader"-->
-  <!--    :inputVal="inputVal"-->
-  <!--    @filteredposts="handleFilteredPosts"-->
-  <!--  ></Table>-->
-  <!--  <Pagination-->
-  <!--    :filteredPosts="filteredPosts.length > 0 ? filteredPosts : mergedposts"-->
-  <!--    @paginatedposts="getPaginatedPosts"-->
-  <!--  ></Pagination>-->
-  <TableWithPagination :mergedposts="mergedposts" :headers-arr="headersArr"></TableWithPagination>
-  <!--    :sort-value="sort"-->
-  <!--    :input-val="inputVal"-->
-  <!--    :selected-main-header="selectedMainHeader"-->
-  <!--    @getSortFromParent="getSorting"-->
+  <UniversalTableComponent
+    :mergedposts="mergedposts"
+    :headers-arr="headersArr"
+    :modal-data="comments"
+    @modal-opened="getDataFromTableRow"
+  ></UniversalTableComponent>
 </template>
 
 <style scoped>

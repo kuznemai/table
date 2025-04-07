@@ -3,7 +3,7 @@ import Table from '@/components/Table.vue';
 import { computed, ref } from 'vue';
 import Pagination from '@/components/Pagination.vue';
 import SelectInput from '@/components/SelectInput.vue';
-import { createLogger } from 'vite';
+import UniversalModalWindow from '@/components/UniversalModalWindow.vue';
 // interface Props {
 //   mergedposts: Merged[];
 //   headersArr: string[];
@@ -15,44 +15,15 @@ import { createLogger } from 'vite';
 const props = defineProps({
   mergedposts: Array,
   headersArr: Array,
+  modalData: Array,
 });
 const selectedMainHeader = ref('');
 const inputVal = ref('');
 
 const sort = ref({ sortBy: 'lowtohigh', header: 'postId' });
 
-// const currentPage = ref<number>(1);
-// const postsPerPage = 25;
-// const amountOfPages = computed(() => Math.ceil(props.mergedposts.length / postsPerPage));
-//
-// const paginatedposts = computed(() => {
-//   const start = (currentPage.value - 1) * postsPerPage;
-//   const end = start + postsPerPage;
-//   return props.mergedposts.slice(start, end);
-//   console.log('paginatedposts.value', paginatedposts.value);
-// });
-//
-// function handlePropagationClick(page: number) {
-//   currentPage.value = page;
-// }
-//
-// function nextPage() {
-//   if (currentPage.value !== Math.ceil(props.mergedposts.length / postsPerPage)) {
-//     currentPage.value++;
-//   }
-// }
-//
-// function previousPage() {
-//   if (currentPage.value !== 1) {
-//     currentPage.value--;
-//   }
-// }
-
-// const emit = defineEmits(['getSortFromParent']);
-//
-// function getSorting(payload: { sortBy: string; header: string }) {
-//   emit('getSortFromParent', payload);
-// }
+const postId = ref([]);
+const isModalOpen = ref(false);
 
 // / ------------------Filtering------------------------------------------
 
@@ -61,13 +32,7 @@ function getSorting(payload: { sortBy: string; header: string }) {
   sort.value = payload;
   console.log('Cортировка', sort.value);
 }
-// function handleSelectValue(event: Event, header: string) {
-//   const target = event.target as HTMLSelectElement;
-//   sort.value = {
-//     sortBy: target.value,
-//     header: header,
-//   };
-// }
+
 const isTypeInputNumber = computed(() => ['userId', 'postId'].includes(selectedMainHeader.value));
 
 const filterTableposts = computed(() => {
@@ -117,6 +82,16 @@ function getPaginatedPosts(paginatedPosts) {
   paginated.value = paginatedPosts;
   console.log('paginated.value', paginated.value);
 }
+
+const emit = defineEmits(['modalOpened']);
+function handlePostId(payload) {
+  console.log('payload', payload);
+  isModalOpen.value = payload.isModalOpen;
+  postId.value = payload.postId;
+  console.log('isModalOpen.value', isModalOpen.value);
+  console.log('postId.value', postId.value);
+  emit('modalOpened', payload);
+}
 </script>
 
 <template>
@@ -128,25 +103,18 @@ function getPaginatedPosts(paginatedPosts) {
   <Table
     :mergedposts="paginated"
     :headersArr="props.headersArr"
-    @getSortFromParent="getSorting"
     :sort-value="sort"
+    @getSortFromParent="getSorting"
+    @sendPostId="handlePostId"
   ></Table>
   <!--  @getSortFromParent="getSorting"-->
   <!--  :sort-value="sortValue"-->
   <Pagination :filtered-posts="filterTableposts" @paginatedposts="getPaginatedPosts"></Pagination>
-  <!--  <div class="pagination-buttons">-->
-  <!--    <button class="pagination-button" @click="previousPage()"><</button>-->
-  <!--    <button-->
-  <!--      class="pagination-button"-->
-  <!--      :class="[currentPage === page ? 'active' : '']"-->
-  <!--      v-for="page in amountOfPages"-->
-  <!--      :key="page"-->
-  <!--      @click="handlePropagationClick(page)"-->
-  <!--    >-->
-  <!--      {{ page }}-->
-  <!--    </button>-->
-  <!--    <button class="pagination-button" @click="nextPage()">></button>-->
-  <!--  </div>-->
+  <UniversalModalWindow
+    v-model:is-modal-open="isModalOpen"
+    :post-id="postId"
+    :data-for-render="props.modalData"
+  ></UniversalModalWindow>
 </template>
 
 <style scoped>
