@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Table from '@/components/Table.vue';
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import Pagination from '@/components/Pagination.vue';
 import SelectInput from '@/components/SelectInput.vue';
 import UniversalModalWindow from '@/components/UniversalModalWindow.vue';
@@ -16,14 +16,52 @@ const props = defineProps({
   mergedposts: Array,
   headersArr: Array,
   modalData: Array,
+  sort: Object,
+  inputVal: String,
+  selectedMainHeader: String,
+  currentPage: Number,
 });
-const selectedMainHeader = ref('');
-const inputVal = ref('');
-
-const sort = ref({ sortBy: 'lowtohigh', header: 'postId' });
+// const selectedMainHeader = computed(() => props.selectedMainHeader);
+// const localinputVal = ref(props.inputVal);
+// const sort = computed(() => props.sort);
+// const currentPage = ref();
+// const selectedMainHeader = ref('');
+// const inputVal = ref('');
+// const sort = ref({ sortBy: 'lowtohigh', header: 'postId' });
+// selectedMainHeader.value = props.selectedMainHeader;
+// inputVal.value = props.inputVal;
+// sort.value = props.sort;
+// currentPage.value = props.currentPage;
+const inputVal = defineModel<string>('inputVal');
+const selectedMainHeader = defineModel<string>('selectedMainHeader');
+const sort = defineModel<{ sortBy: string; header: string }>('sort');
+const currentPage = defineModel<number>('currentPage');
 
 const postId = ref([]);
 const isModalOpen = ref(false);
+
+const emit = defineEmits([
+  'modalOpened',
+  // 'update:sort',
+  // 'update:selectedMainHeader',
+  // 'update:inputVal',
+  // 'update:currentPage',
+]);
+
+// watch(selectedMainHeader, (newVal) => {
+//   emit('update:selectedMainHeader', {
+//     selectedMainHeader: newVal,
+//   });
+// });
+//
+// watch(inputVal, (newVal) => {
+//   emit('update:inputVal', {
+//     inputVal: newVal,
+//   });
+// });
+// watch(currentPage, (newVal) => {
+//   emit('update:currentPage', newVal);
+// });
 
 // / ------------------Filtering------------------------------------------
 
@@ -31,6 +69,7 @@ function getSorting(payload: { sortBy: string; header: string }) {
   console.log('payload', payload);
   sort.value = payload;
   console.log('Cортировка', sort.value);
+  emit('update:sort', payload);
 }
 
 const isTypeInputNumber = computed(() => ['userId', 'postId'].includes(selectedMainHeader.value));
@@ -74,23 +113,20 @@ const filterTableposts = computed(() => {
     }
   }
 
-  console.log('copymergedposts', copymergedposts);
   return copymergedposts;
 });
 const paginated = ref([]);
 function getPaginatedPosts(paginatedPosts) {
   paginated.value = paginatedPosts;
-  console.log('paginated.value', paginated.value);
 }
 
-const emit = defineEmits(['modalOpened']);
 function handlePostId(payload) {
-  console.log('payload', payload);
   isModalOpen.value = payload.isModalOpen;
   postId.value = payload.postId;
-  console.log('isModalOpen.value', isModalOpen.value);
-  console.log('postId.value', postId.value);
   emit('modalOpened', payload);
+}
+function getCurrentPage(page) {
+  currentPage.value = page;
 }
 </script>
 
@@ -106,11 +142,14 @@ function handlePostId(payload) {
     :sort-value="sort"
     @getSortFromParent="getSorting"
     @sendPostId="handlePostId"
-    :input-val="inputVal"
   ></Table>
   <!--  @getSortFromParent="getSorting"-->
   <!--  :sort-value="sortValue"-->
-  <Pagination :filtered-posts="filterTableposts" @paginatedposts="getPaginatedPosts"></Pagination>
+  <Pagination
+    :filtered-posts="filterTableposts"
+    v-model:current-page="currentPage"
+    @paginatedposts="getPaginatedPosts"
+  ></Pagination>
   <UniversalModalWindow
     v-model:is-modal-open="isModalOpen"
     :post-id="postId"

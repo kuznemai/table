@@ -22,6 +22,7 @@ onMounted(() => console.log('props.dataForRender', props.dataForRender));
     <transition name="fade">
       <div v-if="props.isModalOpen" class="modal-overlay" @click.self="closeModal">
         <div class="modal-container">
+          <button @click="closeModal" class="close-button-red"></button>
           <div class="modal-header">
             <h2>Post details</h2>
             <h4>PostId : {{ props.postId }}</h4>
@@ -55,12 +56,35 @@ onMounted(() => console.log('props.dataForRender', props.dataForRender));
 }
 
 .modal-container {
+  position: relative; /* чтобы кнопка позиционировалась внутри */
   width: 400px;
   max-height: 80vh;
   padding: 20px;
   background-color: #ffffff;
   border-radius: 10px;
   overflow-y: auto;
+}
+
+/* Кнопка-крестик в правом верхнем углу */
+.close-button-red {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  font-weight: bold;
+  color: #ff5c5c;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.close-button-red:hover {
+  color: #ff1a1a;
+}
+
+.close-button-red::before {
+  content: '✕';
 }
 
 .close-button {

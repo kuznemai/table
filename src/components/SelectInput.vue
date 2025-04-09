@@ -19,7 +19,7 @@ function handleInput(event: Event) {
 
 <template>
   <div class="select-input-container">
-    <select class="select-wrapperr" @change="handleSelect" :value="props.selectedMainHeader">
+    <select class="select-wrapperr" @change="handleSelect" :value="selectedMainHeader">
       <option
         v-for="header in props.headersArr"
         :key="header"
@@ -31,7 +31,7 @@ function handleInput(event: Event) {
     </select>
     <div class="">
       <input
-        :value="props.inputVal"
+        :value="inputVal"
         @input="handleInput"
         class="input-wrapper"
         :type="isTypeInputNumber ? 'number' : 'text'"

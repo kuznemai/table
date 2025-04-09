@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, ref, computed, watch } from 'vue';
 import UniversalTableComponent from '@/components/UniversalTableComponent.vue';
+import { useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 
 interface Post {
   userId: number;
@@ -25,11 +27,27 @@ interface User {
   };
 }
 
+const router = useRouter();
+const route = useRoute();
+
 const posts = ref<Post[]>([]);
 const users = ref<User[]>([]);
 const mergedposts = ref<Merged[]>([]);
 const headersArr = ref<string[]>([]);
 const postId = ref();
+const sort = ref({ sortBy: 'lowtohigh', header: 'postId' });
+const selectedMainHeader = ref('');
+const inputVal = ref('');
+const currentPage = ref();
+
+watch(() => {
+  sort.value.sortBy = route.query.sortBy?.toString() || 'lowtohigh';
+  sort.value.header = route.query.header?.toString() || 'postId';
+  selectedMainHeader.value = route.query.selectedMainHeader?.toString() || '';
+  inputVal.value = route.query.inputVal?.toString() || '';
+  currentPage.value = route.query.currentPage?.toString() || '';
+  console.log('route.query', route.query);
+});
 
 async function getData() {
   try {
@@ -40,7 +58,6 @@ async function getData() {
         postId: id,
         ...rest,
       }));
-      console.log('posts', posts.value);
     }
   } catch (error) {
     console.error('Error:', error);
@@ -56,7 +73,6 @@ async function getUserData() {
         userId: id,
         ...rest,
       }));
-      console.log('users', users.value);
     }
   } catch (error) {
     console.error('Error:', error);
@@ -94,6 +110,7 @@ function getDataFromTableRow(payload) {
     getComments(payload.postId);
   }
 }
+
 async function getComments(postId: number) {
   try {
     const response = await fetch('https://jsonplaceholder.typicode.com/comments');
@@ -107,7 +124,89 @@ async function getComments(postId: number) {
   }
 }
 
+// function gerPayloadForRouting(payload) {
+//   sort.value.sortBy = payload.sortBy;
+//   sort.value.header = payload.header;
+//   console.log('я получил данные сортировки', sort.value);
+//   router.push({
+//     query: {
+//       ...route.query,
+//       sortBy: sort.value.sortBy,
+//       header: sort.value.header,
+//     },
+//   });
+// }
+//
+// function getSelectValue(payload) {
+//   selectedMainHeader.value = payload.selectedMainHeader;
+//   console.log('я получил данные selectedMainHeader', selectedMainHeader.value);
+//   router.push({
+//     query: {
+//       ...route.query,
+//       selectedMainHeader: selectedMainHeader.value,
+//     },
+//   });
+// }
+// function getInputValue(payload) {
+//   inputVal.value = payload.inputVal;
+//   console.log('я получил данные inputVal', inputVal.value);
+//   router.push({
+//     query: {
+//       ...route.query,
+//       inputVal: inputVal.value,
+//     },
+//   });
+// }
+//
+// function getPage(page) {
+//   currentPage.value = page;
+//   console.log('currentPage.value', currentPage.value);
+//   router.push({
+//     query: {
+//       ...route.query,
+//       currentPage: currentPage.value,
+//     },
+//   });
+// }
+
 // onMounted(() => getComments());
+
+watch(inputVal, (newVal) => {
+  router.push({
+    query: {
+      ...route.query,
+      inputVal: newVal,
+    },
+  });
+});
+
+watch(selectedMainHeader, (newVal) => {
+  router.push({
+    query: {
+      ...route.query,
+      selectedMainHeader: newVal,
+    },
+  });
+});
+
+watch(sort, (newVal) => {
+  router.push({
+    query: {
+      ...route.query,
+      sortBy: newVal.sortBy,
+      header: newVal.header,
+    },
+  });
+});
+
+watch(currentPage, (newVal) => {
+  router.push({
+    query: {
+      ...route.query,
+      currentPage: newVal,
+    },
+  });
+});
 </script>
 
 <template>
@@ -115,6 +214,10 @@ async function getComments(postId: number) {
     :mergedposts="mergedposts"
     :headers-arr="headersArr"
     :modal-data="comments"
+    v-model:input-val="inputVal"
+    v-model:current-page="currentPage"
+    v-model:sort="sort"
+    v-model:selected-main-header="selectedMainHeader"
     @modal-opened="getDataFromTableRow"
   ></UniversalTableComponent>
 </template>

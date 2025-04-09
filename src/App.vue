@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import PostsPage from '@/components/pages/PostsPage.vue';
 import { ref } from 'vue';
-import AlbumsPage from '@/components/pages/AlbumsPage.vue';
-
 interface Post {
   userId: number;
   id: number;
@@ -26,7 +23,7 @@ interface User {
   };
 }
 
-const chosenTab = ref('albums');
+// const chosenTab = ref('albums');
 </script>
 
 <template>

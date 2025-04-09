@@ -1,13 +1,23 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 
 const props = defineProps({
   filteredPosts: Array,
+  currentPage: Number,
 });
 
-const currentPage = ref<number>(1);
+// const currentPage = ref<number>(1);
+// currentPage.value = props.currentPage;
+const currentPage = computed({
+  get: () => Number(props.currentPage) || 1,
+  set: (val) => emit('update:currentPage', val),
+});
 const postsPerPage = 25;
 const amountOfPages = computed(() => Math.ceil(props.filteredPosts.length / postsPerPage));
+
+watch(currentPage, (newVal) => {
+  emit('update:currentPage', newVal);
+});
 
 const paginatedposts = computed(() => {
   const start = (currentPage.value - 1) * postsPerPage;
@@ -35,7 +45,7 @@ function previousPage() {
   }
 }
 
-const emit = defineEmits(['paginatedposts']);
+const emit = defineEmits(['paginatedposts', 'sendCurrentPage']);
 function sendUpdatedPaginatedPosts() {
   emit('paginatedposts', paginatedposts.value);
 }
@@ -45,6 +55,9 @@ watch(
     sendUpdatedPaginatedPosts();
   }
 );
+onMounted(() => {
+  sendUpdatedPaginatedPosts();
+});
 </script>
 
 <template>
