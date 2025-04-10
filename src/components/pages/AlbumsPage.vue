@@ -1,7 +1,42 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
 import UniversalTableComponent from '@/components/UniversalTableComponent.vue';
+import { useRoute, useRouter } from 'vue-router';
 
+const router = useRouter();
+const route = useRoute();
+
+const postId = ref();
+const sort = ref({ sortBy: 'lowtohigh', header: 'postId' });
+const selectedMainHeader = ref('');
+const inputVal = ref('');
+const currentPage = ref();
+
+watch(
+  () => [sort.value, selectedMainHeader.value, inputVal.value, currentPage.value],
+  () => {
+    router.push({
+      query: {
+        ...route.query,
+        sortBy: sort.value.sortBy,
+        header: sort.value.header,
+        selectedMainHeader: selectedMainHeader.value,
+        inputVal: inputVal.value,
+        currentPage: currentPage.value.toString(),
+      },
+    });
+  }
+);
+
+watch(() => {
+  sort.sortBy = route.query.sortBy?.toString() || 'lowtohigh';
+  sort.header = route.query.header?.toString() || 'postId';
+  selectedMainHeader.value = route.query.selectedMainHeader?.toString() || '';
+  inputVal.value = route.query.inputVal?.toString() || '';
+  currentPage.value = route.query.currentPage?.toString() || '';
+  postId.value = route.query.postId?.toString() || '';
+  console.log('route.query', route.query);
+});
 const albumsArr = ref([]);
 const headersArr = ref([]);
 
@@ -26,7 +61,7 @@ onMounted(getAlbums);
 
 // -------------Data request for modal---------------
 const photos = ref([]);
-const postId = ref();
+
 function getDataFromTableRow(payload) {
   console.log('payloadinalbums', payload);
   postId.value = payload.postId;

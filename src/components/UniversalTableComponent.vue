@@ -24,44 +24,40 @@ const props = defineProps({
 // const selectedMainHeader = computed(() => props.selectedMainHeader);
 // const localinputVal = ref(props.inputVal);
 // const sort = computed(() => props.sort);
-// const currentPage = ref();
-// const selectedMainHeader = ref('');
-// const inputVal = ref('');
-// const sort = ref({ sortBy: 'lowtohigh', header: 'postId' });
+const currentPage = ref();
+const selectedMainHeader = ref('');
+const inputVal = ref('');
+const sort = ref({ sortBy: 'lowtohigh', header: 'postId' });
 // selectedMainHeader.value = props.selectedMainHeader;
 // inputVal.value = props.inputVal;
 // sort.value = props.sort;
 // currentPage.value = props.currentPage;
-const inputVal = defineModel<string>('inputVal');
-const selectedMainHeader = defineModel<string>('selectedMainHeader');
-const sort = defineModel<{ sortBy: string; header: string }>('sort');
-const currentPage = defineModel<number>('currentPage');
 
 const postId = ref([]);
 const isModalOpen = ref(false);
 
 const emit = defineEmits([
   'modalOpened',
-  // 'update:sort',
-  // 'update:selectedMainHeader',
-  // 'update:inputVal',
-  // 'update:currentPage',
+  // 'sendSorting',
+  'update:sort',
+  'update:selectedMainHeader',
+  'update:inputVal',
+  'update:currentPage',
 ]);
 
-// watch(selectedMainHeader, (newVal) => {
-//   emit('update:selectedMainHeader', {
-//     selectedMainHeader: newVal,
-//   });
-// });
-//
-// watch(inputVal, (newVal) => {
-//   emit('update:inputVal', {
-//     inputVal: newVal,
-//   });
-// });
-// watch(currentPage, (newVal) => {
-//   emit('update:currentPage', newVal);
-// });
+watch(selectedMainHeader, (newVal) => {
+  emit('update:selectedMainHeader', newVal);
+});
+
+watch(inputVal, (newVal) => {
+  emit('update:inputVal', newVal);
+});
+watch(currentPage, (newVal) => {
+  emit('update:currentPage', newVal);
+});
+watch(sort, (newVal) => {
+  emit('update:sort', newVal);
+});
 
 // / ------------------Filtering------------------------------------------
 
@@ -69,7 +65,7 @@ function getSorting(payload: { sortBy: string; header: string }) {
   console.log('payload', payload);
   sort.value = payload;
   console.log('Cортировка', sort.value);
-  emit('update:sort', payload);
+  // emit('sendSorting', sort.value);
 }
 
 const isTypeInputNumber = computed(() => ['userId', 'postId'].includes(selectedMainHeader.value));
@@ -139,7 +135,7 @@ function getCurrentPage(page) {
   <Table
     :mergedposts="paginated"
     :headersArr="props.headersArr"
-    :sort-value="sort"
+    :sortValue="sort"
     @getSortFromParent="getSorting"
     @sendPostId="handlePostId"
   ></Table>
