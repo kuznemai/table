@@ -16,48 +16,15 @@ const props = defineProps({
   mergedposts: Array,
   headersArr: Array,
   modalData: Array,
-  sort: Object,
-  inputVal: String,
-  selectedMainHeader: String,
-  currentPage: Number,
 });
-// const selectedMainHeader = computed(() => props.selectedMainHeader);
-// const localinputVal = ref(props.inputVal);
-// const sort = computed(() => props.sort);
+
 const currentPage = ref();
 const selectedMainHeader = ref('');
 const inputVal = ref('');
 const sort = ref({ sortBy: 'lowtohigh', header: 'postId' });
-// selectedMainHeader.value = props.selectedMainHeader;
-// inputVal.value = props.inputVal;
-// sort.value = props.sort;
-// currentPage.value = props.currentPage;
 
 const postId = ref([]);
 const isModalOpen = ref(false);
-
-const emit = defineEmits([
-  'modalOpened',
-  // 'sendSorting',
-  'update:sort',
-  'update:selectedMainHeader',
-  'update:inputVal',
-  'update:currentPage',
-]);
-
-watch(selectedMainHeader, (newVal) => {
-  emit('update:selectedMainHeader', newVal);
-});
-
-watch(inputVal, (newVal) => {
-  emit('update:inputVal', newVal);
-});
-watch(currentPage, (newVal) => {
-  emit('update:currentPage', newVal);
-});
-watch(sort, (newVal) => {
-  emit('update:sort', newVal);
-});
 
 // / ------------------Filtering------------------------------------------
 
@@ -65,7 +32,6 @@ function getSorting(payload: { sortBy: string; header: string }) {
   console.log('payload', payload);
   sort.value = payload;
   console.log('Cортировка', sort.value);
-  // emit('sendSorting', sort.value);
 }
 
 const isTypeInputNumber = computed(() => ['userId', 'postId'].includes(selectedMainHeader.value));
@@ -116,14 +82,16 @@ function getPaginatedPosts(paginatedPosts) {
   paginated.value = paginatedPosts;
 }
 
+const emit = defineEmits(['modalOpened']);
+
 function handlePostId(payload) {
   isModalOpen.value = payload.isModalOpen;
   postId.value = payload.postId;
   emit('modalOpened', payload);
 }
-function getCurrentPage(page) {
-  currentPage.value = page;
-}
+// function getCurrentPage(page) {
+//   currentPage.value = page;
+// }
 </script>
 
 <template>

@@ -35,24 +35,20 @@ const users = ref<User[]>([]);
 const mergedposts = ref<Merged[]>([]);
 const headersArr = ref<string[]>([]);
 const postId = ref();
-const sort = ref({ sortBy: 'lowtohigh', header: 'postId' });
-const selectedMainHeader = ref('');
-const inputVal = ref('');
-const currentPage = ref();
-// const sort = defineModel<{ sortBy: string; header: string }>('sort');
-// const selectedMainHeader = defineModel<string>('selectedMainHeader');
-// const inputVal = defineModel<string>('inputVal');
-// const currentPage = defineModel<number>('currentPage');
 
-watch(() => {
-  sort.sortBy = route.query.sortBy?.toString() || 'lowtohigh';
-  sort.header = route.query.header?.toString() || 'postId';
-  selectedMainHeader.value = route.query.selectedMainHeader?.toString() || '';
-  inputVal.value = route.query.inputVal?.toString() || '';
-  currentPage.value = route.query.currentPage?.toString() || '';
-  postId.value = route.query.postId?.toString() || '';
-  console.log('route.query', route.query);
-});
+// watch(
+//   () => route.query,
+//   (newQuery) => {
+//     sort.value.sortBy = newQuery.sortBy?.toString() || 'lowtohigh';
+//     sort.value.header = newQuery.header?.toString() || 'postId';
+//     selectedMainHeader.value = newQuery.selectedMainHeader?.toString() || '';
+//     inputVal.value = newQuery.inputVal?.toString() || '';
+//     currentPage.value = newQuery.currentPage?.toString() || '';
+//     postId.value = newQuery.postId?.toString() || '';
+//     console.log('route.query', newQuery);
+//   },
+//   { immediate: true }
+// );
 
 async function getData() {
   try {
@@ -87,7 +83,7 @@ async function getUserData() {
 onMounted(async () => {
   await Promise.all([getData(), getUserData()]);
   mergeUsers();
-  getComments(postId.value);
+  // getComments(postId.value);
 });
 
 function mergeUsers() {
@@ -111,12 +107,12 @@ const comments = ref([]);
 function getDataFromTableRow(payload) {
   console.log('ivegotthepayloaaaad', payload);
   postId.value = payload.postId;
-  router.push({
-    query: {
-      ...route.query,
-      postId: postId.value,
-    },
-  });
+  // router.push({
+  //   query: {
+  //     ...route.query,
+  //     postId: postId.value,
+  //   },
+  // });
   if (payload.isModalOpen === true) {
     getComments(payload.postId);
   }
@@ -148,50 +144,49 @@ async function getComments(postId: number) {
 //   });
 // }
 //
-function getSelectValue(payload) {
-  selectedMainHeader.value = payload;
-  console.log('я получил данные selectedMainHeader', selectedMainHeader.value);
-  router.push({
-    query: {
-      ...route.query,
-      selectedMainHeader: selectedMainHeader.value,
-    },
-  });
-}
-function getInputValue(payload) {
-  inputVal.value = payload;
-  console.log('я получил данные inputVal', inputVal.value);
-  router.push({
-    query: {
-      ...route.query,
-      inputVal: inputVal.value,
-    },
-  });
-}
-
-function getPage(page) {
-  currentPage.value = page;
-  console.log('currentPage.value', currentPage.value);
-  router.push({
-    query: {
-      ...route.query,
-      currentPage: currentPage.value,
-    },
-  });
-}
-function getSort(payload) {
-  sort.value.sortBy = payload.sortBy;
-  sort.value.header = payload.header;
-  router.push({
-    query: {
-      ...route.query,
-      sortBy: sort.value.sortBy,
-      header: sort.value.header,
-    },
-  });
-  console.log('payloadinpostspage', payload);
-}
-// onMounted(() => getComments());
+// function getSelectValue(payload) {
+//   selectedMainHeader.value = payload;
+//   console.log('я получил данные selectedMainHeader', selectedMainHeader.value);
+//   router.push({
+//     query: {
+//       ...route.query,
+//       selectedMainHeader: selectedMainHeader.value,
+//     },
+//   });
+// }
+// function getInputValue(payload) {
+//   inputVal.value = payload;
+//   console.log('я получил данные inputVal', inputVal.value);
+//   router.push({
+//     query: {
+//       ...route.query,
+//       inputVal: inputVal.value,
+//     },
+//   });
+// }
+//
+// function getPage(page) {
+//   currentPage.value = page;
+//   console.log('currentPage.value', currentPage.value);
+//   router.push({
+//     query: {
+//       ...route.query,
+//       currentPage: currentPage.value,
+//     },
+//   });
+// }
+// function getSort(payload) {
+//   sort.value.sortBy = payload.sortBy;
+//   sort.value.header = payload.header;
+//   router.push({
+//     query: {
+//       ...route.query,
+//       sortBy: sort.value.sortBy,
+//       header: sort.value.header,
+//     },
+//   });
+//   console.log('payloadinpostspage', payload);
+// }
 
 // watch(inputVal, (newVal) => {
 //   router.push({
@@ -236,22 +231,8 @@ function getSort(payload) {
     :mergedposts="mergedposts"
     :headers-arr="headersArr"
     :modal-data="comments"
-    :selected-main-header="selectedMainHeader"
-    :input-val="inputVal"
-    :current-page="currentPage"
-    :sort="sort"
-    @update:sort="getSort"
-    @update:input-val="getInputValue"
-    @update:selectedMainHeader="getSelectValue"
-    @update:current-page="getPage"
-    @modal-opened="getDataFromTableRow"
+    @modalOpened="getDataFromTableRow"
   ></UniversalTableComponent>
-  <!--  @send-sorting="getSort"-->
-  <!--  v-model:sort="sort"-->
-  <!--  v-model:input-val="inputVal"-->
-  <!--  v-model:selected-main-header="selectedMainHeader"-->
-  <!--  v-model:current-page="currentPage"-->
-  <!--  v-model:sort="sort"-->
 </template>
 
 <style scoped>

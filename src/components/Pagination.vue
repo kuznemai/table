@@ -6,18 +6,9 @@ const props = defineProps({
   currentPage: Number,
 });
 
-// const currentPage = ref<number>(1);
-// currentPage.value = props.currentPage;
-const currentPage = computed({
-  get: () => Number(props.currentPage) || 1,
-  set: (val) => emit('update:currentPage', val),
-});
 const postsPerPage = 25;
 const amountOfPages = computed(() => Math.ceil(props.filteredPosts.length / postsPerPage));
-
-watch(currentPage, (newVal) => {
-  emit('update:currentPage', newVal);
-});
+const currentPage = ref(1);
 
 const paginatedposts = computed(() => {
   const start = (currentPage.value - 1) * postsPerPage;
