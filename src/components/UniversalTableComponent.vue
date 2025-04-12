@@ -4,6 +4,7 @@ import { computed, onMounted, ref, watch } from 'vue';
 import Pagination from '@/components/Pagination.vue';
 import SelectInput from '@/components/SelectInput.vue';
 import UniversalModalWindow from '@/components/UniversalModalWindow.vue';
+import { useRoute, useRouter } from 'vue-router';
 // interface Props {
 //   mergedposts: Merged[];
 //   headersArr: string[];
@@ -21,10 +22,13 @@ const props = defineProps({
 const currentPage = ref();
 const selectedMainHeader = ref('');
 const inputVal = ref('');
-const sort = ref({ sortBy: 'lowtohigh', header: 'postId' });
+const sort = ref({ sortBy: '', header: '' });
 
-const postId = ref([]);
-const isModalOpen = ref(false);
+const router = useRouter();
+const route = useRoute();
+const emit = defineEmits(['onClickRow', 'sendPostIdToPosts']);
+
+// const comments = computed(() => (comments.value = props.modalData));
 
 // / ------------------Filtering------------------------------------------
 
@@ -82,16 +86,99 @@ function getPaginatedPosts(paginatedPosts) {
   paginated.value = paginatedPosts;
 }
 
-const emit = defineEmits(['modalOpened']);
-
 function handlePostId(payload) {
-  isModalOpen.value = payload.isModalOpen;
-  postId.value = payload.postId;
-  emit('modalOpened', payload);
+  console.log('object', payload);
+  // console.log('universaltableisopened', isModalOpen.value, postId.value, payload);
+  // isModalOpen.value = payload.isModalOpen;
+  // postId.value = payload.postId;
+  // console.log('universaltableisopened2222', isModalOpen.value, postId.value, payload);
+  emit('onClickRow', payload);
 }
-// function getCurrentPage(page) {
-//   currentPage.value = page;
+
+// onMounted(() => {
+//   if (isModalOpen.value === true) {
+//     console.log('finallll', isModalOpen.value, postId.value);
+//     emit('modalOpened', {
+//       isModalOpen: isModalOpen.value,
+//       postId: postId.value,
+//     });
+//   }
+// });
+function getCurrentPage(page) {
+  currentPage.value = page;
+}
+// function updateModal(val) {
+//   isModalOpen.value = val;
 // }
+
+watch(inputVal, (newVal) => {
+  router.push({
+    query: {
+      ...route.query,
+      inputVal: newVal,
+    },
+  });
+});
+
+watch(selectedMainHeader, (newVal) => {
+  router.push({
+    query: {
+      ...route.query,
+      selectedMainHeader: newVal,
+    },
+  });
+});
+
+watch(sort, (newVal) => {
+  router.push({
+    query: {
+      ...route.query,
+      sortBy: newVal.sortBy,
+      header: newVal.header,
+    },
+  });
+});
+
+watch(currentPage, (newVal) => {
+  router.push({
+    query: {
+      ...route.query,
+      currentPage: newVal,
+    },
+  });
+});
+// watch(postId, (newPostId) => {
+//   router.push({
+//     query: {
+//       ...route.query,
+//       postId: newPostId,
+//     },
+//   });
+// });
+// watch(isModalOpen, (newModalState) => {
+//   console.log('testtesttest', isModalOpen.value);
+//   router.push({
+//     query: {
+//       ...route.query,
+//       isModalOpen: newModalState,
+//     },
+//   });
+// });
+
+watch(
+  () => route.query,
+  (newQuery) => {
+    sort.value.sortBy = newQuery.sortBy?.toString() || 'lowtohigh';
+    sort.value.header = newQuery.header?.toString() || 'postId';
+    selectedMainHeader.value = newQuery.selectedMainHeader?.toString() || '';
+    inputVal.value = newQuery.inputVal?.toString() || '';
+    currentPage.value = newQuery.currentPage?.toString() || '';
+    // isModalOpen.value = newQuery.isModalOpen?.toString() || '';
+    // postId.value = newQuery.postId?.toString() || '';
+    console.log('route.query', newQuery);
+  },
+  { immediate: true }
+);
 </script>
 
 <template>
@@ -105,20 +192,24 @@ function handlePostId(payload) {
     :headersArr="props.headersArr"
     :sortValue="sort"
     @getSortFromParent="getSorting"
-    @sendPostId="handlePostId"
+    @onClickRow="handlePostId"
   ></Table>
   <!--  @getSortFromParent="getSorting"-->
   <!--  :sort-value="sortValue"-->
   <Pagination
     :filtered-posts="filterTableposts"
-    v-model:current-page="currentPage"
+    :current-page="currentPage"
+    @send-current-page="getCurrentPage"
     @paginatedposts="getPaginatedPosts"
   ></Pagination>
-  <UniversalModalWindow
-    v-model:is-modal-open="isModalOpen"
-    :post-id="postId"
-    :data-for-render="props.modalData"
-  ></UniversalModalWindow>
+  <!--  <UniversalModalWindow-->
+  <!--    :is-modal-open="isModalOpen"-->
+  <!--    :post-id="postId"-->
+  <!--    :data-for-render="props.modalData"-->
+  <!--    @closeModal="isModalOpen = false"-->
+  <!--  ></UniversalModalWindow>-->
+
+  <!--  @update:isModalOpen="updateModal"-->
 </template>
 
 <style scoped>

@@ -18,7 +18,7 @@ const props = defineProps({
   selectedMainHeader: String,
 });
 
-const emit = defineEmits(['getSortFromParent', 'sendPostId']);
+const emit = defineEmits(['getSortFromParent', 'onClickRow']);
 
 function handleSelectValue($event: HTMLSelectElement, header: string) {
   emit('getSortFromParent', {
@@ -26,14 +26,14 @@ function handleSelectValue($event: HTMLSelectElement, header: string) {
     header: header,
   });
 }
+//
+// const isModalOpen = ref();
+// const postId = ref();
 
-const isModalOpen = ref(false);
-const postId = ref();
-
-function openPost(id) {
-  isModalOpen.value = true;
-  postId.value = id;
-  emit('sendPostId', { isModalOpen: isModalOpen.value, postId: postId.value });
+function onClickRow(row) {
+  // isModalOpen.value = true;
+  // postId.value = id;
+  emit('onClickRow', row);
 }
 
 function highlightMatch(value) {
@@ -70,13 +70,14 @@ function highlightMatch(value) {
     </thead>
     <!--    <tbody>-->
     <transition-group name="fade" tag="tbody">
-      <TableRow class="table-row" v-for="post in props.mergedposts" :key="post.postId">
+      <TableRow
+        class="table-row"
+        v-for="row in props.mergedposts"
+        :key="row.postId"
+        @click="onClickRow(row)"
+      >
         <template v-for="header in props.headersArr" :key="header">
-          <td
-            @click="openPost(post.postId)"
-            class="table-cell"
-            v-html="highlightMatch(post[header])"
-          ></td>
+          <td class="table-cell" v-html="highlightMatch(row[header])"></td>
         </template>
       </TableRow>
     </transition-group>

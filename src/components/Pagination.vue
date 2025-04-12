@@ -19,6 +19,7 @@ const paginatedposts = computed(() => {
 
 function handlePropagationClick(page: number) {
   currentPage.value = page;
+  emit('sendCurrentPage', page);
   sendUpdatedPaginatedPosts();
 }
 
