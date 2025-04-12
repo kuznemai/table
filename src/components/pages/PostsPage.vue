@@ -94,41 +94,52 @@ function mergeUsers() {
 }
 
 // -------------Data request for modal---------------
-const comments = ref([]);
+// const comments = ref([]);
 
-function getDataFromTableRow2(payload) {
-  getDataFromTableRow(payload.postId);
-}
+// function getDataFromTableRow2(payload) {
+//   getDataFromTableRow(payload.postId);
+// }
+const tableRowObj = ref({});
+
 async function getDataFromTableRow(payload) {
+  tableRowObj.value = payload;
   console.log('ivegotthepayloaaaad', payload);
-  comments.value = [];
-  await getComments(payload);
+  // comments.value = [];
+  // await getComments(payload);
   isModalOpen.value = true;
   router.push({
     query: {
       ...route.query,
-      modalPopup: payload,
+      isModalOpen: isModalOpen.value,
     },
-    // postId.value = payload.postId;
-    // if (payload.isModalOpen) {
-    //   getComments(payload.postId);
-    // }
+    //   // postId.value = payload.postId;
+    //   // if (payload.isModalOpen) {
+    //   //   getComments(payload.postId);
+    //   // }
+    // });
   });
 }
 
-async function getComments(postId: number) {
-  try {
-    const response = await fetch('https://jsonplaceholder.typicode.com/comments');
-    if (response.ok) {
-      const data = await response.json();
-      console.log('hghghghghghgh', data);
-      comments.value = data.filter((elem) => elem.postId === postId);
-    }
-  } catch (err) {
-    console.log('Error');
-  }
-}
+// async function getComments(postId: number) {
+//   try {
+//     const response = await fetch('https://jsonplaceholder.typicode.com/comments');
+//     if (response.ok) {
+//       const data = await response.json();
+//       console.log('hghghghghghgh', data);
+//       comments.value = data.filter((elem) => elem.postId === postId);
+//     }
+//   } catch (err) {
+//     console.log('Error');
+//   }
+// }
 
+watch(
+  () => route.query,
+  (newQuery) => {
+    isModalOpen.value = newQuery.isModalOpen?.toString() || '';
+  },
+  { immediate: true }
+);
 // watch(
 //     () => route.query,
 //     (newQuery) => {
@@ -144,13 +155,15 @@ async function getComments(postId: number) {
   <UniversalTableComponent
     :mergedposts="mergedposts"
     :headers-arr="headersArr"
-    @onClickRow="getDataFromTableRow2"
+    @onClickRow="getDataFromTableRow"
     @sendPostIdToPosts="getDataFromTableRow"
   ></UniversalTableComponent>
   <UniversalModalWindow v-if="isModalOpen" @closeModal="isModalOpen = false">
-    <post-page-popup :comments="comments"></post-page-popup>
+    <post-page-popup :tableRowObj="tableRowObj"></post-page-popup>
   </UniversalModalWindow>
+  <!--  @onClickRow="getDataFromTableRow2"-->
   <!--  :modal-data="comments"-->
+  <!--  <post-page-popup :comments="comments"></post-page-popup>-->
 </template>
 
 <style scoped>

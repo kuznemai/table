@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 const props = defineProps({
   filteredPosts: Array,
-  currentPage: Number,
+  // currentPage: Number,
 });
 
 const postsPerPage = 25;
@@ -20,6 +21,7 @@ const paginatedposts = computed(() => {
 function handlePropagationClick(page: number) {
   currentPage.value = page;
   emit('sendCurrentPage', page);
+  console.log('page', page);
   sendUpdatedPaginatedPosts();
 }
 
@@ -50,6 +52,25 @@ watch(
 onMounted(() => {
   sendUpdatedPaginatedPosts();
 });
+const router = useRouter();
+const route = useRoute();
+
+watch(currentPage, (newVal) => {
+  router.push({
+    query: {
+      ...route.query,
+      currentPage: newVal,
+    },
+  });
+});
+
+watch(
+  () => route.query,
+  (newQuery) => {
+    currentPage.value = newQuery.currentPage?.toString() || '';
+  },
+  { immediate: true }
+);
 </script>
 
 <template>
@@ -57,7 +78,7 @@ onMounted(() => {
     <button class="pagination-button" @click="previousPage"><</button>
     <button
       class="pagination-button"
-      :class="[currentPage === page ? 'active' : '']"
+      :class="[Number(currentPage) === page ? 'active' : '']"
       v-for="page in amountOfPages"
       :key="page"
       @click="handlePropagationClick(page)"

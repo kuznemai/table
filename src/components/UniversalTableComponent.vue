@@ -139,14 +139,14 @@ watch(sort, (newVal) => {
   });
 });
 
-watch(currentPage, (newVal) => {
-  router.push({
-    query: {
-      ...route.query,
-      currentPage: newVal,
-    },
-  });
-});
+// watch(currentPage, (newVal) => {
+//   router.push({
+//     query: {
+//       ...route.query,
+//       currentPage: newVal,
+//     },
+//   });
+// });
 // watch(postId, (newPostId) => {
 //   router.push({
 //     query: {
@@ -172,7 +172,7 @@ watch(
     sort.value.header = newQuery.header?.toString() || 'postId';
     selectedMainHeader.value = newQuery.selectedMainHeader?.toString() || '';
     inputVal.value = newQuery.inputVal?.toString() || '';
-    currentPage.value = newQuery.currentPage?.toString() || '';
+    // currentPage.value = newQuery.currentPage?.toString() || '';
     // isModalOpen.value = newQuery.isModalOpen?.toString() || '';
     // postId.value = newQuery.postId?.toString() || '';
     console.log('route.query', newQuery);
