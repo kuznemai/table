@@ -26,13 +26,8 @@ function handleSelectValue($event: HTMLSelectElement, header: string) {
     header: header,
   });
 }
-//
-// const isModalOpen = ref();
-// const postId = ref();
 
 function onClickRow(row) {
-  // isModalOpen.value = true;
-  // postId.value = id;
   emit('onClickRow', row);
 }
 
@@ -41,6 +36,7 @@ function highlightMatch(value) {
   console.log('props.inputVal', props.inputVal);
 
   const searchText = props.inputVal.toLowerCase();
+  console.log('searchText', searchText);
   const originalText = value.toString();
   const regex = new RegExp(searchText, 'gi');
 
@@ -68,7 +64,6 @@ function highlightMatch(value) {
         </th>
       </tr>
     </thead>
-    <!--    <tbody>-->
     <transition-group name="fade" tag="tbody">
       <TableRow
         class="table-row"
@@ -81,9 +76,7 @@ function highlightMatch(value) {
         </template>
       </TableRow>
     </transition-group>
-    <!--    </tbody>-->
   </table>
-  <!--  <UniversalModalWindow v-if="isModalOpen" v-model:isModalOpen="isModalOpen" :post-id="postId"></UniversalModalWindow>-->
 </template>
 
 <style>

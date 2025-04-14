@@ -51,6 +51,18 @@ watch(
 );
 onMounted(() => {
   sendUpdatedPaginatedPosts();
+  const queryPage = Number(route.query.currentPage);
+
+  if (!queryPage || isNaN(queryPage) || queryPage < 1) {
+    currentPage.value = 1;
+
+    router.replace({
+      query: {
+        ...route.query,
+        currentPage: '1',
+      },
+    });
+  }
 });
 const router = useRouter();
 const route = useRoute();
@@ -67,7 +79,8 @@ watch(currentPage, (newVal) => {
 watch(
   () => route.query,
   (newQuery) => {
-    currentPage.value = newQuery.currentPage?.toString() || '';
+    currentPage.value = Number(newQuery.currentPage);
+    console.log('Number(newQuery.currentPage)', Number(newQuery.currentPage));
   },
   { immediate: true }
 );

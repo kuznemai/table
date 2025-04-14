@@ -19,7 +19,7 @@ const props = defineProps({
   modalData: Array,
 });
 
-const currentPage = ref();
+const currentPage = ref(1);
 const selectedMainHeader = ref('');
 const inputVal = ref('');
 const sort = ref({ sortBy: '', header: '' });
@@ -140,6 +140,7 @@ watch(
     :mergedposts="paginated"
     :headersArr="props.headersArr"
     :sortValue="sort"
+    :inputVal="inputVal"
     @getSortFromParent="getSorting"
     @onClickRow="handlePostId"
   ></Table>
