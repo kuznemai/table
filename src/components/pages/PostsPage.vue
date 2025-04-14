@@ -71,11 +71,10 @@ async function getUserData() {
 onMounted(async () => {
   await Promise.all([getData(), getUserData()]);
   mergeUsers();
-  console.log('modalPopup', route.query.modalPopup);
-  if (route.query.modalPopup) {
+  console.log('route.query.isModalOpen', route.query.isModalOpen);
+  if (route.query.isModalOpen === 'true') {
     await getDataFromTableRow(Number(route.query.modalPopup));
   }
-  // getComments(postId.value);
 });
 
 function mergeUsers() {
@@ -94,61 +93,31 @@ function mergeUsers() {
 }
 
 // -------------Data request for modal---------------
-// const comments = ref([]);
 
-// function getDataFromTableRow2(payload) {
-//   getDataFromTableRow(payload.postId);
-// }
 const tableRowObj = ref({});
 
 async function getDataFromTableRow(payload) {
+  await router.push({
+    query: {
+      ...route.query,
+      isModalOpen: 'true', //isModalOpen.value.toString(),
+    },
+  });
+
+  isModalOpen.value = true;
   tableRowObj.value = payload;
   console.log('ivegotthepayloaaaad', payload);
-  // comments.value = [];
-  // await getComments(payload);
-  isModalOpen.value = true;
+}
+
+function closeModalWindow() {
+  isModalOpen.value = false;
   router.push({
     query: {
       ...route.query,
-      isModalOpen: isModalOpen.value,
+      isModalOpen: isModalOpen.value.toString(),
     },
-    //   // postId.value = payload.postId;
-    //   // if (payload.isModalOpen) {
-    //   //   getComments(payload.postId);
-    //   // }
-    // });
   });
 }
-
-// async function getComments(postId: number) {
-//   try {
-//     const response = await fetch('https://jsonplaceholder.typicode.com/comments');
-//     if (response.ok) {
-//       const data = await response.json();
-//       console.log('hghghghghghgh', data);
-//       comments.value = data.filter((elem) => elem.postId === postId);
-//     }
-//   } catch (err) {
-//     console.log('Error');
-//   }
-// }
-
-watch(
-  () => route.query,
-  (newQuery) => {
-    isModalOpen.value = newQuery.isModalOpen?.toString() || '';
-  },
-  { immediate: true }
-);
-// watch(
-//     () => route.query,
-//     (newQuery) => {
-//       isModalOpen.value = newQuery.isModalOpen?.toString() || '';
-//       postId.value = newQuery.postId?.toString() || '';
-//       console.log('route.query', newQuery);
-//     },
-//     { immediate: true }
-// );
 </script>
 
 <template>
@@ -158,12 +127,9 @@ watch(
     @onClickRow="getDataFromTableRow"
     @sendPostIdToPosts="getDataFromTableRow"
   ></UniversalTableComponent>
-  <UniversalModalWindow v-if="isModalOpen" @closeModal="isModalOpen = false">
+  <UniversalModalWindow v-if="isModalOpen" @closeModal="closeModalWindow">
     <post-page-popup :tableRowObj="tableRowObj"></post-page-popup>
   </UniversalModalWindow>
-  <!--  @onClickRow="getDataFromTableRow2"-->
-  <!--  :modal-data="comments"-->
-  <!--  <post-page-popup :comments="comments"></post-page-popup>-->
 </template>
 
 <style scoped>

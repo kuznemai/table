@@ -1,8 +1,4 @@
 <script setup lang="ts">
-// const props = defineProps({
-//   photos: Array,
-// });
-
 import { onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 

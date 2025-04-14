@@ -32,17 +32,8 @@ interface User {
       <router-link to="/posts" :class="{ active: $route.path === '/posts' }">Posts</router-link>
       <router-link to="/albums" :class="{ active: $route.path === '/albums' }">Albums</router-link>
     </nav>
-    <!--    <router-view />-->
-    <!--    <div class="tabs">-->
-    <!--      <button @click="chosenTab = 'posts'" :class="{ active: chosenTab === 'posts' }">Posts</button>-->
-    <!--      <button @click="chosenTab = 'albums'" :class="{ active: chosenTab === 'albums' }">-->
-    <!--        Albums-->
-    <!--      </button>-->
-    <!--    </div>-->
   </div>
 
-  <!--  <PostsPage v-if="chosenTab === 'posts'" />-->
-  <!--  <AlbumsPage v-if="chosenTab === 'albums'" />-->
   <router-view />
 </template>
 

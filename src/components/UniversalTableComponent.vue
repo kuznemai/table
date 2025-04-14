@@ -28,14 +28,10 @@ const router = useRouter();
 const route = useRoute();
 const emit = defineEmits(['onClickRow', 'sendPostIdToPosts']);
 
-// const comments = computed(() => (comments.value = props.modalData));
-
 // / ------------------Filtering------------------------------------------
 
 function getSorting(payload: { sortBy: string; header: string }) {
-  console.log('payload', payload);
   sort.value = payload;
-  console.log('Cортировка', sort.value);
 }
 
 const isTypeInputNumber = computed(() => ['userId', 'postId'].includes(selectedMainHeader.value));
@@ -87,29 +83,12 @@ function getPaginatedPosts(paginatedPosts) {
 }
 
 function handlePostId(payload) {
-  console.log('object', payload);
-  // console.log('universaltableisopened', isModalOpen.value, postId.value, payload);
-  // isModalOpen.value = payload.isModalOpen;
-  // postId.value = payload.postId;
-  // console.log('universaltableisopened2222', isModalOpen.value, postId.value, payload);
   emit('onClickRow', payload);
 }
 
-// onMounted(() => {
-//   if (isModalOpen.value === true) {
-//     console.log('finallll', isModalOpen.value, postId.value);
-//     emit('modalOpened', {
-//       isModalOpen: isModalOpen.value,
-//       postId: postId.value,
-//     });
-//   }
-// });
 function getCurrentPage(page) {
   currentPage.value = page;
 }
-// function updateModal(val) {
-//   isModalOpen.value = val;
-// }
 
 watch(inputVal, (newVal) => {
   router.push({
@@ -139,32 +118,6 @@ watch(sort, (newVal) => {
   });
 });
 
-// watch(currentPage, (newVal) => {
-//   router.push({
-//     query: {
-//       ...route.query,
-//       currentPage: newVal,
-//     },
-//   });
-// });
-// watch(postId, (newPostId) => {
-//   router.push({
-//     query: {
-//       ...route.query,
-//       postId: newPostId,
-//     },
-//   });
-// });
-// watch(isModalOpen, (newModalState) => {
-//   console.log('testtesttest', isModalOpen.value);
-//   router.push({
-//     query: {
-//       ...route.query,
-//       isModalOpen: newModalState,
-//     },
-//   });
-// });
-
 watch(
   () => route.query,
   (newQuery) => {
@@ -172,10 +125,6 @@ watch(
     sort.value.header = newQuery.header?.toString() || 'postId';
     selectedMainHeader.value = newQuery.selectedMainHeader?.toString() || '';
     inputVal.value = newQuery.inputVal?.toString() || '';
-    // currentPage.value = newQuery.currentPage?.toString() || '';
-    // isModalOpen.value = newQuery.isModalOpen?.toString() || '';
-    // postId.value = newQuery.postId?.toString() || '';
-    console.log('route.query', newQuery);
   },
   { immediate: true }
 );
@@ -202,14 +151,6 @@ watch(
     @send-current-page="getCurrentPage"
     @paginatedposts="getPaginatedPosts"
   ></Pagination>
-  <!--  <UniversalModalWindow-->
-  <!--    :is-modal-open="isModalOpen"-->
-  <!--    :post-id="postId"-->
-  <!--    :data-for-render="props.modalData"-->
-  <!--    @closeModal="isModalOpen = false"-->
-  <!--  ></UniversalModalWindow>-->
-
-  <!--  @update:isModalOpen="updateModal"-->
 </template>
 
 <style scoped>

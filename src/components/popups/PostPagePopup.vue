@@ -2,9 +2,6 @@
 import { onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-// const props = defineProps({
-//   comments: Array,
-// });
 const props = defineProps({
   tableRowObj: Object,
 });
@@ -16,7 +13,6 @@ async function getComments(postId: number) {
     const response = await fetch('https://jsonplaceholder.typicode.com/comments');
     if (response.ok) {
       const data = await response.json();
-      console.log('hghghghghghgh', data);
       comments.value = data.filter((elem) => elem.postId === postId);
     }
   } catch (err) {
@@ -32,6 +28,7 @@ onMounted(() => {
       query: {
         ...route.query,
         modalPopup: props.tableRowObj.postId.toString(),
+        //isModalOpen: 'true',
       },
     });
   }
@@ -44,17 +41,6 @@ watch(
   },
   { immediate: true }
 );
-
-// watch(
-//   () => route.query.modalPopup,
-//   (newPostId) => {
-//     if (newPostId) {
-//       const numericId = parseInt(newPostId as string);
-//       getComments(numericId);
-//     }
-//   },
-//   { immediate: true }
-// );
 </script>
 
 <template>
