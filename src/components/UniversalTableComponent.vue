@@ -3,26 +3,37 @@ import Table from '@/components/Table.vue';
 import { computed, onMounted, ref, watch } from 'vue';
 import Pagination from '@/components/Pagination.vue';
 import SelectInput from '@/components/SelectInput.vue';
-import UniversalModalWindow from '@/components/UniversalModalWindow.vue';
 import { useRoute, useRouter } from 'vue-router';
-// interface Props {
-//   mergedposts: Merged[];
-//   headersArr: string[];
-//   sortValue: { sortBy: string; header: string };
-//   inputVal: string;
-//   selectedMainHeader: string;
-// }
 
-const props = defineProps({
-  mergedposts: Array,
-  headersArr: Array,
-  modalData: Array,
-});
+interface Props {
+  mergedposts: Merged[];
+  headersArr: string[];
+  sortValue: { sortBy: string; header: string };
+  inputVal: string;
+  selectedMainHeader: string;
+}
+interface SortValue {
+  sortBy: string;
+  header: string;
+}
+interface Merged {
+  userId: number;
+  postId: number;
+  id: number;
+  title: string;
+  body: string;
+  username: string;
+  [key: string]: string | number; // Index signature for dynamic properties
+}
+const props = defineProps<Props>();
+//   {mergedposts: Array,
+// headersArr: Array,
+// modalData: Array,}
 
-const currentPage = ref(1);
-const selectedMainHeader = ref('');
-const inputVal = ref('');
-const sort = ref({ sortBy: '', header: '' });
+const currentPage = ref<number>(1);
+const selectedMainHeader = ref<string>('');
+const inputVal = ref<string>('');
+const sort = ref<SortValue>({ sortBy: '', header: '' });
 
 const router = useRouter();
 const route = useRoute();
@@ -30,13 +41,15 @@ const emit = defineEmits(['onClickRow', 'sendPostIdToPosts']);
 
 // / ------------------Filtering------------------------------------------
 
-function getSorting(payload: { sortBy: string; header: string }) {
+function getSorting(payload: SortValue): void {
   sort.value = payload;
 }
 
-const isTypeInputNumber = computed(() => ['userId', 'postId'].includes(selectedMainHeader.value));
+const isTypeInputNumber = computed<boolean>(() =>
+  ['userId', 'postId'].includes(selectedMainHeader.value)
+);
 
-const filterTableposts = computed(() => {
+const filterTableposts = computed<Merged[]>(() => {
   if (!props.mergedposts || props.mergedposts.length === 0) return [];
 
   let copymergedposts = [...props.mergedposts];
@@ -59,9 +72,9 @@ const filterTableposts = computed(() => {
 
   if (copymergedposts.length > 0 && typeof copymergedposts[0][selectedHeader] === 'number') {
     if (filterBy === 'lowtohigh') {
-      copymergedposts.sort((a, b) => a[selectedHeader] - b[selectedHeader]);
+      copymergedposts.sort((a: Merged, b: Merged) => a[selectedHeader] - b[selectedHeader]);
     } else if (filterBy === 'hightolow') {
-      copymergedposts.sort((a, b) => b[selectedHeader] - a[selectedHeader]);
+      copymergedposts.sort((a: Merged, b: Merged) => b[selectedHeader] - a[selectedHeader]);
     }
   } else if (copymergedposts.length > 0 && typeof copymergedposts[0][selectedHeader] === 'string') {
     if (filterBy === 'lowtohigh') {
@@ -77,20 +90,20 @@ const filterTableposts = computed(() => {
 
   return copymergedposts;
 });
-const paginated = ref([]);
-function getPaginatedPosts(paginatedPosts) {
-  paginated.value = paginatedPosts;
+const universalPaginatedPosts = ref<Merged[]>([]);
+function getPaginatedPosts(paginatedPosts: Merged[]): void {
+  universalPaginatedPosts.value = paginatedPosts;
 }
 
-function handlePostId(payload) {
+function handlePostId(payload: Merged): void {
   emit('onClickRow', payload);
 }
 
-function getCurrentPage(page) {
+function getCurrentPage(page: number): void {
   currentPage.value = page;
 }
 
-watch(inputVal, (newVal) => {
+watch(inputVal, (newVal: string) => {
   router.push({
     query: {
       ...route.query,
@@ -99,7 +112,7 @@ watch(inputVal, (newVal) => {
   });
 });
 
-watch(selectedMainHeader, (newVal) => {
+watch(selectedMainHeader, (newVal: string) => {
   router.push({
     query: {
       ...route.query,
@@ -108,7 +121,7 @@ watch(selectedMainHeader, (newVal) => {
   });
 });
 
-watch(sort, (newVal) => {
+watch(sort, (newVal: SortValue) => {
   router.push({
     query: {
       ...route.query,
@@ -137,7 +150,7 @@ watch(
     :headersArr="props.headersArr"
   ></SelectInput>
   <Table
-    :mergedposts="paginated"
+    :mergedposts="universalPaginatedPosts"
     :headersArr="props.headersArr"
     :sortValue="sort"
     :inputVal="inputVal"

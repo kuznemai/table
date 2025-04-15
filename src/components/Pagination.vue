@@ -2,10 +2,14 @@
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-const props = defineProps({
-  filteredPosts: Array,
-  // currentPage: Number,
-});
+interface Props {
+  filteredPosts: object[];
+}
+
+const props = defineProps<Props>();
+//   {
+// filteredPosts: Array,
+// currentPage: Number,}
 
 const postsPerPage = 25;
 const amountOfPages = computed(() => Math.ceil(props.filteredPosts.length / postsPerPage));

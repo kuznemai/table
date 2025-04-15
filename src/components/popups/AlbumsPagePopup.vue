@@ -1,11 +1,26 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import Avatar from 'vue3-avatar';
 
-const props = defineProps({
-  tableRowObj: Object,
-});
-const photos = ref([]);
+interface Photo {
+  albumId: number;
+  id: number;
+  title: string;
+  url: string;
+  thumbnailUrl: string;
+}
+interface TableRowObj {
+  id: number;
+}
+// const props = defineProps({
+//   tableRowObj: Object,
+// });
+
+const props = defineProps<{
+  tableRowObj?: TableRowObj;
+}>();
+const photos = ref<Photo[]>([]);
 
 const router = useRouter();
 const route = useRoute();
@@ -14,9 +29,7 @@ async function getPhotos(id: number) {
     const response = await fetch('https://jsonplaceholder.typicode.com/photos');
     if (response.ok) {
       const data = await response.json();
-      console.log('hghghghghghgh', data);
       photos.value = data.filter((elem) => elem.albumId === id);
-      console.log('photos.value', photos.value);
     }
   } catch (err) {
     console.log('Error');
@@ -49,8 +62,8 @@ watch(
     <h2>Post details</h2>
     <!--    <h4>PostId : {{ props.postId }}</h4>-->
   </div>
-  <div class="modal-body" v-for="photo in photos" :key="photo.album">
-    <!--    <avatar :name="photo.title || 'Anon'"></avatar>-->
+  <div class="modal-body" v-for="photo in photos" :key="photo.id">
+    <avatar :name="photo.title || 'Anon'"></avatar>
     <p v-for="(value, key) in photo" :key="key" class="modal-body-elem">
       <strong>{{ key }}:</strong> {{ value }}
     </p>

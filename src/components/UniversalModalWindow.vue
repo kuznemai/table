@@ -1,21 +1,6 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
-import Avatar from 'vue3-avatar';
-
-// const props = defineProps({
-//   dataForRender: Array,
-//   isModalOpen: Boolean,
-//   postId: Number,
-// });
-const comments = ref([]);
-
 const emit = defineEmits(['closeModal']);
 
-// watch(props.dataForRender, () => {
-//   if (props.dataForRender?.length !== 0) {
-//     comments.value = props.dataForRender;
-//   }
-// });
 function closeModal() {
   emit('closeModal');
 }
@@ -27,17 +12,7 @@ function closeModal() {
       <div class="modal-overlay" @click.self="closeModal">
         <div class="modal-container">
           <button @click="closeModal" class="close-button-red"></button>
-          <!--          <div class="modal-header">-->
-          <!--            <h2>Post details</h2>-->
-          <!--            <h4>PostId : {{ props.postId }}</h4>-->
-          <!--          </div>-->
-          <!--          <div class="modal-body" v-for="data in props.dataForRender" :key="data.postId">-->
-          <!--            <avatar :name="data.email || 'Anon'"></avatar>-->
-          <!--            <p v-for="(value, key) in data" :key="key" class="modal-body-elem">-->
-          <!--              <strong>{{ key }}:</strong> {{ value }}-->
-          <!--            </p>-->
-          <!--            <br />-->
-          <!--          </div>-->
+
           <slot></slot>
           <div class="modal-footer">
             <button @click="closeModal" class="close-button">Закрыть</button>
@@ -99,17 +74,5 @@ function closeModal() {
   border-radius: 5px;
   color: #ffffff;
   cursor: pointer;
-}
-
-.modal-body {
-  border: 1px solid #6b6b6b;
-  border-radius: 10px;
-  padding: 10px;
-  margin: 20px;
-}
-
-.modal-body-elem {
-  margin-bottom: 5px;
-  border-bottom: 1px solid #8c8c8c;
 }
 </style>

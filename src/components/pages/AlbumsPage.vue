@@ -6,13 +6,19 @@ import { useRoute, useRouter } from 'vue-router';
 import UniversalModalWindow from '@/components/UniversalModalWindow.vue';
 import AlbumsPagePopup from '@/components/popups/AlbumsPagePopup.vue';
 
+interface Album {
+  userId: number;
+  id: number;
+  title: string;
+}
+
 const router = useRouter();
 const route = useRoute();
 
 const isModalOpen = ref(false);
 
-const albumsArr = ref([]);
-const headersArr = ref([]);
+const albumsArr = ref<Album[]>([]);
+const headersArr = ref<string[]>([]);
 
 async function getAlbums() {
   try {
@@ -32,14 +38,14 @@ async function getAlbums() {
 onMounted(async () => {
   await getAlbums();
   if (route.query.isModalOpen === 'true') {
-    getDataFromTableRow2(Number(route.query.modalPopup));
+    await getDataFromTableRow(Number(route.query.modalPopup));
   }
 });
 
 // -------------Data request for modal---------------
 // const photos = ref([]);
 const tableRowObj = ref({});
-async function getDataFromTableRow2(payload) {
+async function getDataFromTableRow(payload: number) {
   await router.push({
     query: {
       ...route.query,
@@ -65,7 +71,7 @@ function closeModalWindow() {
   <UniversalTableComponent
     :mergedposts="albumsArr"
     :headers-arr="headersArr"
-    @onClickRow="getDataFromTableRow2"
+    @onClickRow="getDataFromTableRow"
   ></UniversalTableComponent>
   <UniversalModalWindow v-if="isModalOpen" @closeModal="closeModalWindow">
     <AlbumsPagePopup :tableRowObj="tableRowObj"></AlbumsPagePopup>

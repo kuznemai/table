@@ -1,11 +1,19 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import Avatar from 'vue3-avatar';
 
 const props = defineProps({
   tableRowObj: Object,
 });
-const comments = ref([]);
+interface Comments {
+  postId: number;
+  id: number;
+  name: string;
+  email: string;
+  body: string;
+}
+const comments = ref<Comments[]>([]);
 const router = useRouter();
 const route = useRoute();
 async function getComments(postId: number) {
@@ -13,7 +21,7 @@ async function getComments(postId: number) {
     const response = await fetch('https://jsonplaceholder.typicode.com/comments');
     if (response.ok) {
       const data = await response.json();
-      comments.value = data.filter((elem) => elem.postId === postId);
+      comments.value = data.filter((elem: Comments) => elem.postId === postId);
     }
   } catch (err) {
     console.log('Error');
@@ -58,59 +66,6 @@ watch(
 </template>
 
 <style scoped>
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.modal-container {
-  position: relative; /* чтобы кнопка позиционировалась внутри */
-  width: 400px;
-  max-height: 80vh;
-  padding: 20px;
-  background-color: #ffffff;
-  border-radius: 10px;
-  overflow-y: auto;
-}
-
-/* Кнопка-крестик в правом верхнем углу */
-.close-button-red {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: transparent;
-  border: none;
-  font-size: 20px;
-  font-weight: bold;
-  color: #ff5c5c;
-  cursor: pointer;
-  transition: color 0.2s;
-}
-
-.close-button-red:hover {
-  color: #ff1a1a;
-}
-
-.close-button-red::before {
-  content: '✕';
-}
-
-.close-button {
-  background-color: #3e8a49;
-  padding: 5px 10px;
-  border: none;
-  border-radius: 5px;
-  color: #ffffff;
-  cursor: pointer;
-}
-
 .modal-body {
   border: 1px solid #6b6b6b;
   border-radius: 10px;

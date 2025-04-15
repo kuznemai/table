@@ -2,36 +2,43 @@
 import TableRow from '@/components/TableRow.vue';
 import { ref, computed } from 'vue';
 
-// interface Props {
-//   mergedposts: Merged[];
-//   headersArr: string[];
-//   // sortValue: { sortBy: string; header: string };
-//   inputVal: string;
-//   selectedMainHeader: string;
-// }
+interface Props {
+  mergedposts: Merged[];
+  headersArr: string[];
+  sortValue: { sortBy: string; header: string };
+  inputVal: string;
+  selectedMainHeader: string;
+  postId: number;
+}
 
-const props = defineProps({
-  mergedposts: Array,
-  headersArr: Array,
-  sortValue: Object,
-  inputVal: String,
-  selectedMainHeader: String,
-});
+const props = defineProps<Props>();
+//   {mergedposts: Array,
+// headersArr: Array,
+// sortValue: Object,
+// inputVal: String,
+// selectedMainHeader: String,}
 
 const emit = defineEmits(['getSortFromParent', 'onClickRow']);
 
-function handleSelectValue($event: HTMLSelectElement, header: string) {
+// function handleSelectValue($event: HTMLSelectElement, header: string) {
+//   emit('getSortFromParent', {
+//     sortBy: $event.target.value,
+//     header: header,
+//   });
+// }
+function handleSelectValue(event: Event, header: string) {
+  const target = event.target as HTMLSelectElement;
   emit('getSortFromParent', {
-    sortBy: $event.target.value,
+    sortBy: target.value,
     header: header,
   });
 }
 
-function onClickRow(row) {
+function onClickRow(row: any) {
   emit('onClickRow', row);
 }
 
-function highlightMatch(value) {
+function highlightMatch(value: string) {
   if (!props.inputVal) return value;
   console.log('props.inputVal', props.inputVal);
 
@@ -48,7 +55,7 @@ function highlightMatch(value) {
   <table class="table">
     <thead>
       <tr>
-        <th class="table-header" v-for="(header, index) in props.headersArr" :key="header">
+        <th class="table-header" v-for="header in props.headersArr" :key="header">
           <div class="header-options">
             <span class="font-bold">{{ header.charAt(0).toUpperCase() + header.slice(1) }}</span>
             <select
