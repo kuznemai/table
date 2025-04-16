@@ -13,6 +13,7 @@ const props = defineProps<Props>();
 
 const postsPerPage = 25;
 const amountOfPages = computed(() => Math.ceil(props.filteredPosts.length / postsPerPage));
+
 const currentPage = ref(1);
 
 const paginatedposts = computed(() => {
@@ -88,6 +89,18 @@ watch(
   },
   { immediate: true }
 );
+
+watch(amountOfPages, (newVal) => {
+  if (Number(route.query.currentPage) > newVal) {
+    currentPage.value = newVal;
+    router.replace({
+      query: {
+        ...route.query,
+        currentPage: newVal,
+      },
+    });
+  }
+});
 </script>
 
 <template>

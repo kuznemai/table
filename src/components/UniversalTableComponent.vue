@@ -23,7 +23,7 @@ interface Merged {
   title: string;
   body: string;
   username: string;
-  [key: string]: string | number; // Index signature for dynamic properties
+  [key: string]: string | number;
 }
 const props = defineProps<Props>();
 //   {mergedposts: Array,
@@ -87,7 +87,7 @@ const filterTableposts = computed<Merged[]>(() => {
       );
     }
   }
-
+  console.log('copymergedposts', copymergedposts);
   return copymergedposts;
 });
 const universalPaginatedPosts = ref<Merged[]>([]);
@@ -148,12 +148,14 @@ watch(
     v-model:selectedMainHeader="selectedMainHeader"
     v-model:inputVal="inputVal"
     :headersArr="props.headersArr"
+    layout="row"
   ></SelectInput>
   <Table
     :mergedposts="universalPaginatedPosts"
     :headersArr="props.headersArr"
     :sortValue="sort"
     :inputVal="inputVal"
+    :selected-main-header="selectedMainHeader"
     @getSortFromParent="getSorting"
     @onClickRow="handlePostId"
   ></Table>

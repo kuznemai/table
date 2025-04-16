@@ -8,9 +8,16 @@ interface Props {
   sortValue: { sortBy: string; header: string };
   inputVal: string;
   selectedMainHeader: string;
-  postId: number;
 }
-
+interface Merged {
+  userId: number;
+  postId: number;
+  id: number;
+  title: string;
+  body: string;
+  username: string;
+  [key: string]: string | number;
+}
 const props = defineProps<Props>();
 //   {mergedposts: Array,
 // headersArr: Array,
@@ -39,8 +46,8 @@ function onClickRow(row: any) {
 }
 
 function highlightMatch(value: string) {
-  if (!props.inputVal) return value;
-  console.log('props.inputVal', props.inputVal);
+  // if (!props.inputVal) return value;
+  // console.log('props.inputVal', props.inputVal);
 
   const searchText = props.inputVal.toLowerCase();
   console.log('searchText', searchText);
@@ -79,7 +86,10 @@ function highlightMatch(value: string) {
         @click="onClickRow(row)"
       >
         <template v-for="header in props.headersArr" :key="header">
-          <td class="table-cell" v-html="highlightMatch(row[header])"></td>
+          <td
+            class="table-cell"
+            v-html="header === props.selectedMainHeader ? highlightMatch(row[header]) : row[header]"
+          ></td>
         </template>
       </TableRow>
     </transition-group>

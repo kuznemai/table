@@ -118,6 +118,11 @@ function closeModalWindow() {
     },
   });
 }
+const forwardedComments = ref([]);
+async function forwardSendComments(payload) {
+  forwardedComments.value = await payload;
+  console.log('forwardedComments.value', forwardedComments.value);
+}
 </script>
 
 <template>
@@ -127,8 +132,15 @@ function closeModalWindow() {
     @onClickRow="getDataFromTableRow"
     @sendPostIdToPosts="getDataFromTableRow"
   ></UniversalTableComponent>
-  <UniversalModalWindow v-if="isModalOpen" @closeModal="closeModalWindow">
-    <post-page-popup :tableRowObj="tableRowObj"></post-page-popup>
+  <UniversalModalWindow
+    v-if="isModalOpen"
+    @closeModal="closeModalWindow"
+    :forwarded-data="forwardedComments"
+  >
+    <post-page-popup
+      :tableRowObj="tableRowObj"
+      @send-comments="forwardSendComments"
+    ></post-page-popup>
   </UniversalModalWindow>
 </template>
 

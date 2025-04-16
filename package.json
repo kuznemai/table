@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
+    "ts-check": "vue-tsc --noEmit",
     "lint": "npx eslint . --fix",
     "format": "prettier --write src/"
   },

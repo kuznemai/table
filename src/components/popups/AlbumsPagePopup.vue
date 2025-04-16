@@ -2,6 +2,8 @@
 import { onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import Avatar from 'vue3-avatar';
+// import { computed } from 'vue/dist/vue';
+import { computed } from 'vue';
 
 interface Photo {
   albumId: number;
@@ -30,6 +32,7 @@ async function getPhotos(id: number) {
     if (response.ok) {
       const data = await response.json();
       photos.value = data.filter((elem) => elem.albumId === id);
+      photosHeaders.value = Object.keys(photos.value[0]);
     }
   } catch (err) {
     console.log('Error');
@@ -55,76 +58,78 @@ watch(
   },
   { immediate: true }
 );
+
+const inputValue = ref('');
+const isTypeInputNumber = computed<boolean>(() =>
+  ['albumId', 'id'].includes(selectedPhotosHeader.value)
+);
+const photosHeaders = ref([]);
+const selectedPhotosHeader = ref<string>('');
+
+const filteredPhotos = computed(() => {
+  let copyOfPhotos = [...photos.value];
+  if (inputValue.value.length !== 0 && selectedPhotosHeader.value.length !== 0) {
+    console.log('inputValue.value', inputValue.value);
+    console.log('selectedCommentsHeader.value', selectedPhotosHeader.value);
+    if (isTypeInputNumber.value) {
+      copyOfPhotos = copyOfPhotos.filter(
+        (elem) => Number(elem[selectedPhotosHeader.value]) === Number(inputValue.value)
+      );
+    } else {
+      copyOfPhotos = copyOfPhotos.filter((elem) =>
+        elem[selectedPhotosHeader.value]
+          .toString()
+          .toLowerCase()
+          .includes(inputValue.value.toLowerCase())
+      );
+    }
+  }
+  return copyOfPhotos;
+});
+function highlightMatch(value: string) {
+  const searchText = inputValue.value.toLowerCase();
+  console.log('searchText', searchText);
+  const originalText = value.toString();
+  const regex = new RegExp(searchText, 'gi');
+
+  return originalText.replace(regex, (match) => `<span class="colorful">${match}</span>`);
+}
 </script>
 
 <template>
+  <div class="albumspage_select_wrapper">
+    <select class="albumspage_select_wrapper_element" @change="" v-model="selectedPhotosHeader">
+      <option v-for="header in photosHeaders" :key="header" :value="header" class="select-option">
+        Filter by {{ header }}
+      </option>
+    </select>
+    <div class="">
+      <input
+        v-model="inputValue"
+        @input=""
+        class="albumspage_select_wrapper_element"
+        :type="isTypeInputNumber ? 'number' : 'text'"
+        placeholder="Search comments.."
+      />
+    </div>
+  </div>
   <div class="modal-header">
     <h2>Post details</h2>
     <!--    <h4>PostId : {{ props.postId }}</h4>-->
   </div>
-  <div class="modal-body" v-for="photo in photos" :key="photo.id">
+  <div class="modal-body" v-for="photo in filteredPhotos" :key="photo.id">
     <avatar :name="photo.title || 'Anon'"></avatar>
     <p v-for="(value, key) in photo" :key="key" class="modal-body-elem">
-      <strong>{{ key }}:</strong> {{ value }}
+      <strong>{{ key }}:</strong>
+      <span
+        v-html="selectedPhotosHeader === key && !isTypeInputNumber ? highlightMatch(value) : value"
+      ></span>
     </p>
     <br />
   </div>
 </template>
 
 <style scoped>
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.modal-container {
-  position: relative; /* чтобы кнопка позиционировалась внутри */
-  width: 400px;
-  max-height: 80vh;
-  padding: 20px;
-  background-color: #ffffff;
-  border-radius: 10px;
-  overflow-y: auto;
-}
-
-/* Кнопка-крестик в правом верхнем углу */
-.close-button-red {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: transparent;
-  border: none;
-  font-size: 20px;
-  font-weight: bold;
-  color: #ff5c5c;
-  cursor: pointer;
-  transition: color 0.2s;
-}
-
-.close-button-red:hover {
-  color: #ff1a1a;
-}
-
-.close-button-red::before {
-  content: '✕';
-}
-
-.close-button {
-  background-color: #3e8a49;
-  padding: 5px 10px;
-  border: none;
-  border-radius: 5px;
-  color: #ffffff;
-  cursor: pointer;
-}
-
 .modal-body {
   border: 1px solid #6b6b6b;
   border-radius: 10px;
@@ -133,7 +138,20 @@ watch(
 }
 
 .modal-body-elem {
+  word-break: break-word;
+  overflow-wrap: anywhere;
   margin-bottom: 5px;
   border-bottom: 1px solid #8c8c8c;
+  border-bottom: 1px solid #8c8c8c;
+}
+.albumspage_select_wrapper_element {
+  width: 90%;
+  height: 30px;
+  gap: 10px;
+  margin: 10px;
+}
+.colorful {
+  background-color: yellow;
+  font-weight: bold;
 }
 </style>

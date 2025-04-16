@@ -1,10 +1,10 @@
 <script setup lang="ts">
-const props = defineProps({
-  inputVal: String,
-  selectedMainHeader: String,
-  headersArr: Array,
-});
-
+const props = defineProps<{
+  inputVal: string;
+  selectedMainHeader: string;
+  headersArr: string[];
+  layout?: 'row' | 'column';
+}>();
 const emit = defineEmits(['update:selectedMainHeader', 'update:inputVal']);
 function handleSelect(event: Event) {
   const target = event.target as HTMLSelectElement;
@@ -18,7 +18,8 @@ function handleInput(event: Event) {
 </script>
 
 <template>
-  <div class="select-input-container">
+  <!--  <div class="select-input-container">-->
+  <div :class="layout === 'column' ? 'select-input-column' : 'select-input-row'">
     <select class="select-wrapperr" @change="handleSelect" :value="selectedMainHeader">
       <option
         v-for="header in props.headersArr"
@@ -43,6 +44,23 @@ function handleInput(event: Event) {
 </template>
 
 <style scoped>
+.select-input-row {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
+.select-input-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+.select-input-column > select,
+.select-input-column > div > input {
+  margin: 10px;
+  width: 80%;
+}
 .select-input-container {
   display: flex;
   flex-direction: row;

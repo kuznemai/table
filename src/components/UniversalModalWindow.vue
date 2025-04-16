@@ -1,9 +1,57 @@
 <script setup lang="ts">
+import SelectInput from '@/components/SelectInput.vue';
+import { computed, ref, watch } from 'vue';
+
+const props = defineProps({
+  forwardedData: Object,
+});
+
 const emit = defineEmits(['closeModal']);
 
 function closeModal() {
   emit('closeModal');
 }
+watch(
+  () => props.forwardedData,
+  (newVal) => {
+    if (newVal && newVal.length > 0) {
+      console.log('forwardedData получены:', newVal);
+    }
+  },
+  { immediate: true }
+);
+
+// const selectedMainHeader = ref<string>('');
+// const inputVal = ref<string>('');
+//
+// const isTypeInputNumber = computed<boolean>(() =>
+//   ['userId', 'postId'].includes(selectedMainHeader.value)
+// );
+//
+// const filterTableposts = computed<Merged[]>(() => {
+//   if (!props.mergedposts || props.mergedposts.length === 0) return [];
+//
+//   let copymergedposts = [...props.mergedposts];
+//   const { sortBy: filterBy, header: selectedHeader } = sort.value;
+//
+//   if (inputVal.value.length !== 0 && selectedMainHeader.value.length !== 0) {
+//     if (isTypeInputNumber.value) {
+//       copymergedposts = copymergedposts.filter(
+//         (elem) => Number(elem[selectedMainHeader.value]) === Number(inputVal.value)
+//       );
+//     } else {
+//       copymergedposts = copymergedposts.filter((elem) =>
+//         elem[selectedMainHeader.value]
+//           ?.toString()
+//           .toLowerCase()
+//           .includes(inputVal.value.toLowerCase())
+//       );
+//     }
+//   }
+//
+//   return copymergedposts;
+// });
+const inputVal = ref<string>('');
 </script>
 
 <template>
@@ -11,8 +59,8 @@ function closeModal() {
     <transition name="fade">
       <div class="modal-overlay" @click.self="closeModal">
         <div class="modal-container">
+          <div class="modal-select-input-container"></div>
           <button @click="closeModal" class="close-button-red"></button>
-
           <slot></slot>
           <div class="modal-footer">
             <button @click="closeModal" class="close-button">Закрыть</button>
@@ -74,5 +122,12 @@ function closeModal() {
   border-radius: 5px;
   color: #ffffff;
   cursor: pointer;
+}
+
+.select-input-container {
+  margin-top: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* расстояние между селектом и инпутом */
 }
 </style>
