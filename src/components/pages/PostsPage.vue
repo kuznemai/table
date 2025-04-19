@@ -33,7 +33,7 @@ const posts = ref<Post[]>([]);
 const users = ref<User[]>([]);
 const mergedposts = ref<Merged[]>([]);
 const headersArr = ref<string[]>([]);
-const isModalOpen = ref(false);
+const openPopupModalId = ref(null);
 
 const router = useRouter();
 const route = useRoute();
@@ -68,12 +68,20 @@ async function getUserData() {
   }
 }
 
+function checkIsOpenPopup() {
+  openPopupModalId.value = Number(route.query.modalPopup) || null;
+}
+checkIsOpenPopup();
+
 onMounted(async () => {
   await Promise.all([getData(), getUserData()]);
   mergeUsers();
   console.log('route.query.isModalOpen', route.query.isModalOpen);
-  if (route.query.isModalOpen === 'true') {
-    await getDataFromTableRow(Number(route.query.modalPopup));
+
+  if (route.query.modalPopup) {
+    await getDataFromTableRow({
+      postId: Number(route.query.modalPopup),
+    });
   }
 });
 
@@ -88,40 +96,18 @@ function mergeUsers() {
       return elem;
     }
   });
-
   headersArr.value = Object.keys(mergedposts.value[0]);
 }
 
 // -------------Data request for modal---------------
 
-const tableRowObj = ref({});
-
 async function getDataFromTableRow(payload) {
-  await router.push({
-    query: {
-      ...route.query,
-      isModalOpen: 'true', //isModalOpen.value.toString(),
-    },
-  });
-
-  isModalOpen.value = true;
-  tableRowObj.value = payload;
+  openPopupModalId.value = payload.postId;
   console.log('ivegotthepayloaaaad', payload);
 }
 
 function closeModalWindow() {
-  isModalOpen.value = false;
-  router.push({
-    query: {
-      ...route.query,
-      isModalOpen: isModalOpen.value.toString(),
-    },
-  });
-}
-const forwardedComments = ref([]);
-async function forwardSendComments(payload) {
-  forwardedComments.value = await payload;
-  console.log('forwardedComments.value', forwardedComments.value);
+  openPopupModalId.value = null;
 }
 </script>
 
@@ -133,14 +119,11 @@ async function forwardSendComments(payload) {
     @sendPostIdToPosts="getDataFromTableRow"
   ></UniversalTableComponent>
   <UniversalModalWindow
-    v-if="isModalOpen"
+    v-if="openPopupModalId"
     @closeModal="closeModalWindow"
-    :forwarded-data="forwardedComments"
+    :id="openPopupModalId"
   >
-    <post-page-popup
-      :tableRowObj="tableRowObj"
-      @send-comments="forwardSendComments"
-    ></post-page-popup>
+    <post-page-popup :id="openPopupModalId"></post-page-popup>
   </UniversalModalWindow>
 </template>
 

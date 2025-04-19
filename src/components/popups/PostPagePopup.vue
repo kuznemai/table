@@ -6,7 +6,7 @@ import Avatar from 'vue3-avatar';
 import { computed } from 'vue';
 
 const props = defineProps({
-  tableRowObj: Object,
+  id: Number,
 });
 
 const emit = defineEmits(['sendComments']);
@@ -18,15 +18,15 @@ interface Comments {
   body: string;
 }
 const comments = ref<Comments[]>([]);
-const router = useRouter();
-const route = useRoute();
+// const router = useRouter();
+// const route = useRoute();
 async function getComments(postId: number) {
   try {
     const response = await fetch('https://jsonplaceholder.typicode.com/comments');
     if (response.ok) {
       const data = await response.json();
       comments.value = data.filter((elem: Comments) => elem.postId === postId);
-      emit('sendComments', comments);
+      // emit('sendComments', comments);
       commentsHeaders.value = Object.keys(comments.value[0]);
     }
   } catch (err) {
@@ -35,26 +35,10 @@ async function getComments(postId: number) {
 }
 
 onMounted(() => {
-  if (props.tableRowObj?.postId) {
-    getComments(props.tableRowObj.postId);
-
-    router.push({
-      query: {
-        ...route.query,
-        modalPopup: props.tableRowObj.postId.toString(),
-        //isModalOpen: 'true',
-      },
-    });
+  if (props.id) {
+    getComments(props.id);
   }
 });
-
-watch(
-  route.query.modalPopup,
-  () => {
-    getComments(Number(route.query.modalPopup));
-  },
-  { immediate: true }
-);
 
 const inputValue = ref('');
 const isTypeInputNumber = computed<boolean>(() =>

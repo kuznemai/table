@@ -12,13 +12,10 @@ interface Album {
   title: string;
 }
 
-const router = useRouter();
-const route = useRoute();
-
-const isModalOpen = ref(false);
-
 const albumsArr = ref<Album[]>([]);
 const headersArr = ref<string[]>([]);
+const openPopupModalId = ref(null);
+const route = useRoute();
 
 async function getAlbums() {
   try {
@@ -34,37 +31,27 @@ async function getAlbums() {
     console.error('Error:', error);
   }
 }
+function checkIsOpenPopup() {
+  openPopupModalId.value = Number(route.query.modalPopup) || null;
+}
+checkIsOpenPopup();
+// -------------Data request for modal---------------
+
+async function getDataFromTableRow(payload) {
+  openPopupModalId.value = payload.id;
+}
+function closeModalWindow() {
+  openPopupModalId.value = null;
+}
 
 onMounted(async () => {
   await getAlbums();
-  if (route.query.isModalOpen === 'true') {
-    await getDataFromTableRow(Number(route.query.modalPopup));
+  if (route.query.modalPopup) {
+    await getDataFromTableRow({
+      id: Number(route.query.modalPopup),
+    });
   }
 });
-
-// -------------Data request for modal---------------
-// const photos = ref([]);
-const tableRowObj = ref({});
-async function getDataFromTableRow(payload: number) {
-  await router.push({
-    query: {
-      ...route.query,
-      isModalOpen: 'true',
-    },
-  });
-  tableRowObj.value = payload;
-  console.log('albumspagepayload', payload);
-  isModalOpen.value = true;
-}
-function closeModalWindow() {
-  isModalOpen.value = false;
-  router.push({
-    query: {
-      ...route.query,
-      isModalOpen: 'false',
-    },
-  });
-}
 </script>
 
 <template>
@@ -73,8 +60,12 @@ function closeModalWindow() {
     :headers-arr="headersArr"
     @onClickRow="getDataFromTableRow"
   ></UniversalTableComponent>
-  <UniversalModalWindow v-if="isModalOpen" @closeModal="closeModalWindow">
-    <AlbumsPagePopup :tableRowObj="tableRowObj"></AlbumsPagePopup>
+  <UniversalModalWindow
+    v-if="openPopupModalId"
+    @closeModal="closeModalWindow"
+    :id="openPopupModalId"
+  >
+    <albums-page-popup :id="openPopupModalId"></albums-page-popup>
   </UniversalModalWindow>
 </template>
 

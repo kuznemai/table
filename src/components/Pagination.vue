@@ -2,105 +2,98 @@
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-interface Props {
-  filteredPosts: object[];
-}
+const currentPage = defineModel<number>('currentPage');
+const amountOfPages = defineModel<number>('amountOfPages');
 
-const props = defineProps<Props>();
-//   {
-// filteredPosts: Array,
-// currentPage: Number,}
+// const postsPerPage = 25;
+// const amountOfPages = computed(() => Math.ceil(props.filteredPosts.length / props.postsPerPage));
 
-const postsPerPage = 25;
-const amountOfPages = computed(() => Math.ceil(props.filteredPosts.length / postsPerPage));
+// const currentPage = ref(1);
 
-const currentPage = ref(1);
-
-const paginatedposts = computed(() => {
-  const start = (currentPage.value - 1) * postsPerPage;
-  const end = start + postsPerPage;
-  return props.filteredPosts.slice(start, end);
-  console.log('paginatedposts.value', paginatedposts.value);
-});
+// const paginatedposts = computed(() => {
+//   const start = (currentPage.value - 1) * postsPerPage;
+//   const end = start + postsPerPage;
+//   return props.filteredPosts.slice(start, end);
+// });
 
 function handlePropagationClick(page: number) {
   currentPage.value = page;
-  emit('sendCurrentPage', page);
-  console.log('page', page);
-  sendUpdatedPaginatedPosts();
+  // emit('sendCurrentPage', page);
+  // console.log('page', page);
+  // sendUpdatedPaginatedPosts();
 }
 
 function nextPage() {
-  if (currentPage.value !== Math.ceil(props.filteredPosts.length / postsPerPage)) {
+  if (currentPage.value < amountOfPages.value) {
     currentPage.value++;
-    handlePropagationClick(currentPage.value);
+    // handlePropagationClick(currentPage.value);
   }
 }
 
 function previousPage() {
   if (currentPage.value !== 1) {
     currentPage.value--;
-    handlePropagationClick(currentPage.value);
+    // handlePropagationClick(currentPage.value);
   }
 }
 
-const emit = defineEmits(['paginatedposts', 'sendCurrentPage']);
-function sendUpdatedPaginatedPosts() {
-  emit('paginatedposts', paginatedposts.value);
-}
-watch(
-  () => props.filteredPosts,
-  () => {
-    sendUpdatedPaginatedPosts();
-  }
-);
-onMounted(() => {
-  sendUpdatedPaginatedPosts();
-  const queryPage = Number(route.query.currentPage);
+// const emit = defineEmits(['paginatedposts', 'sendCurrentPage']);
+// function sendUpdatedPaginatedPosts() {
+//   emit('paginatedposts', paginatedposts.value);
+// }
+// watch(
+//   () => props.filteredPosts,
+//   () => {
+//     sendUpdatedPaginatedPosts();
+//   }
+// );
+// onMounted(() => {
+//   // sendUpdatedPaginatedPosts();
+//   const queryPage = Number(route.query.currentPage);
+//
+//   if (!queryPage || isNaN(queryPage) || queryPage < 1) {
+//     currentPage.value = 1;
+//
+//     router.replace({
+//       query: {
+//         ...route.query,
+//         currentPage: '1',
+//       },
+//     });
+//   }
+// });
+// const router = useRouter();
+// const route = useRoute();
 
-  if (!queryPage || isNaN(queryPage) || queryPage < 1) {
-    currentPage.value = 1;
-
-    router.replace({
-      query: {
-        ...route.query,
-        currentPage: '1',
-      },
-    });
-  }
-});
-const router = useRouter();
-const route = useRoute();
-
-watch(currentPage, (newVal) => {
-  router.push({
-    query: {
-      ...route.query,
-      currentPage: newVal,
-    },
-  });
-});
-
-watch(
-  () => route.query,
-  (newQuery) => {
-    currentPage.value = Number(newQuery.currentPage);
-    console.log('Number(newQuery.currentPage)', Number(newQuery.currentPage));
-  },
-  { immediate: true }
-);
-
-watch(amountOfPages, (newVal) => {
-  if (Number(route.query.currentPage) > newVal) {
-    currentPage.value = newVal;
-    router.replace({
-      query: {
-        ...route.query,
-        currentPage: newVal,
-      },
-    });
-  }
-});
+// watch(currentPage, (newVal) => {
+//   router.push({
+//     query: {
+//       ...route.query,
+//       currentPage: newVal,
+//     },
+//   });
+// });
+//
+// watch(
+//   () => route.query,
+//   (newQuery) => {
+//     currentPage.value = Number(newQuery.currentPage);
+//     console.log('Number(newQuery.currentPage)', Number(newQuery.currentPage));
+//   },
+//   { immediate: true }
+// );
+//
+// watch(amountOfPages, (newVal) => {
+//   if (Number(route.query.currentPage) > newVal) {
+//     currentPage.value = newVal;
+//     router.replace({
+//       query: {
+//         ...route.query,
+//         currentPage: newVal,
+//       },
+//     });
+//   }
+// });
 </script>
 
 <template>

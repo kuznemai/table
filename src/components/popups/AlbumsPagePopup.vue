@@ -12,20 +12,13 @@ interface Photo {
   url: string;
   thumbnailUrl: string;
 }
-interface TableRowObj {
-  id: number;
-}
-// const props = defineProps({
-//   tableRowObj: Object,
-// });
 
-const props = defineProps<{
-  tableRowObj?: TableRowObj;
-}>();
+const props = defineProps({
+  id: Number,
+});
+
 const photos = ref<Photo[]>([]);
 
-const router = useRouter();
-const route = useRoute();
 async function getPhotos(id: number) {
   try {
     const response = await fetch('https://jsonplaceholder.typicode.com/photos');
@@ -39,25 +32,11 @@ async function getPhotos(id: number) {
   }
 }
 onMounted(() => {
-  if (props.tableRowObj?.id) {
-    getPhotos(props.tableRowObj.id);
-
-    router.push({
-      query: {
-        ...route.query,
-        modalPopup: props.tableRowObj.id.toString(),
-      },
-    });
+  if (props.id) {
+    console.log('props.id', props.id);
+    getPhotos(props.id);
   }
 });
-
-watch(
-  route.query.modalPopup,
-  () => {
-    getPhotos(Number(route.query.modalPopup));
-  },
-  { immediate: true }
-);
 
 const inputValue = ref('');
 const isTypeInputNumber = computed<boolean>(() =>

@@ -1,57 +1,34 @@
 <script setup lang="ts">
 import SelectInput from '@/components/SelectInput.vue';
-import { computed, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 const props = defineProps({
-  forwardedData: Object,
+  id: Number,
 });
 
 const emit = defineEmits(['closeModal']);
+const router = useRouter();
+const route = useRoute();
 
 function closeModal() {
   emit('closeModal');
 }
-watch(
-  () => props.forwardedData,
-  (newVal) => {
-    if (newVal && newVal.length > 0) {
-      console.log('forwardedData получены:', newVal);
-    }
-  },
-  { immediate: true }
-);
+onMounted(() => {
+  console.log('props.idtesttest', props.id);
+  router.push({
+    query: {
+      ...route.query,
+      modalPopup: props.id,
+    },
+  });
+});
 
-// const selectedMainHeader = ref<string>('');
-// const inputVal = ref<string>('');
-//
-// const isTypeInputNumber = computed<boolean>(() =>
-//   ['userId', 'postId'].includes(selectedMainHeader.value)
-// );
-//
-// const filterTableposts = computed<Merged[]>(() => {
-//   if (!props.mergedposts || props.mergedposts.length === 0) return [];
-//
-//   let copymergedposts = [...props.mergedposts];
-//   const { sortBy: filterBy, header: selectedHeader } = sort.value;
-//
-//   if (inputVal.value.length !== 0 && selectedMainHeader.value.length !== 0) {
-//     if (isTypeInputNumber.value) {
-//       copymergedposts = copymergedposts.filter(
-//         (elem) => Number(elem[selectedMainHeader.value]) === Number(inputVal.value)
-//       );
-//     } else {
-//       copymergedposts = copymergedposts.filter((elem) =>
-//         elem[selectedMainHeader.value]
-//           ?.toString()
-//           .toLowerCase()
-//           .includes(inputVal.value.toLowerCase())
-//       );
-//     }
-//   }
-//
-//   return copymergedposts;
-// });
-const inputVal = ref<string>('');
+onUnmounted(() => {
+  router.replace({
+    modalPopup: '',
+  });
+});
 </script>
 
 <template>

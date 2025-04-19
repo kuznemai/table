@@ -12,10 +12,12 @@ interface Props {
   inputVal: string;
   selectedMainHeader: string;
 }
+
 interface SortValue {
   sortBy: string;
   header: string;
 }
+
 interface Merged {
   userId: number;
   postId: number;
@@ -23,14 +25,14 @@ interface Merged {
   title: string;
   body: string;
   username: string;
+
   [key: string]: string | number;
 }
+
 const props = defineProps<Props>();
-//   {mergedposts: Array,
-// headersArr: Array,
-// modalData: Array,}
 
 const currentPage = ref<number>(1);
+
 const selectedMainHeader = ref<string>('');
 const inputVal = ref<string>('');
 const sort = ref<SortValue>({ sortBy: '', header: '' });
@@ -40,6 +42,14 @@ const route = useRoute();
 const emit = defineEmits(['onClickRow', 'sendPostIdToPosts']);
 
 // / ------------------Filtering------------------------------------------
+function checkInitialState() {
+  sort.value.sortBy = route.query.sortBy?.toString() || 'lowtohigh';
+  sort.value.header = route.query.header?.toString() || 'postId';
+  selectedMainHeader.value = route.query.selectedMainHeader?.toString() || '';
+  inputVal.value = route.query.inputVal?.toString() || '';
+  currentPage.value = Number(route.query.currentPage) || 1;
+}
+checkInitialState();
 
 function getSorting(payload: SortValue): void {
   sort.value = payload;
@@ -55,7 +65,7 @@ const filterTableposts = computed<Merged[]>(() => {
   let copymergedposts = [...props.mergedposts];
   const { sortBy: filterBy, header: selectedHeader } = sort.value;
 
-  if (inputVal.value.length !== 0 && selectedMainHeader.value.length !== 0) {
+  if (inputVal.value && selectedMainHeader.value.length !== 0) {
     if (isTypeInputNumber.value) {
       copymergedposts = copymergedposts.filter(
         (elem) => Number(elem[selectedMainHeader.value]) === Number(inputVal.value)
@@ -87,60 +97,37 @@ const filterTableposts = computed<Merged[]>(() => {
       );
     }
   }
-  console.log('copymergedposts', copymergedposts);
   return copymergedposts;
 });
-const universalPaginatedPosts = ref<Merged[]>([]);
-function getPaginatedPosts(paginatedPosts: Merged[]): void {
-  universalPaginatedPosts.value = paginatedPosts;
-}
 
 function handlePostId(payload: Merged): void {
+  console.log('etoidpayloadcheck', payload);
   emit('onClickRow', payload);
 }
 
-function getCurrentPage(page: number): void {
-  currentPage.value = page;
-}
+watch([sort, inputVal, selectedMainHeader, currentPage], (newVal) => {
+  let defaultQuery = {
+    sortBy: newVal[0].sortBy,
+    header: newVal[0].header,
+    inputVal: newVal[1],
+    selectedMainHeader: newVal[2],
+    currentPage: newVal[3],
+  };
 
-watch(inputVal, (newVal: string) => {
+  defaultQuery = Object.fromEntries(Object.entries(defaultQuery).filter(([key, value]) => value));
+
   router.push({
-    query: {
-      ...route.query,
-      inputVal: newVal,
-    },
+    query: defaultQuery,
   });
 });
 
-watch(selectedMainHeader, (newVal: string) => {
-  router.push({
-    query: {
-      ...route.query,
-      selectedMainHeader: newVal,
-    },
-  });
+const postsPerPage = 25;
+const amountOfPages = computed(() => Math.ceil(filterTableposts.value.length / postsPerPage));
+const paginatedposts = computed(() => {
+  const start = (currentPage.value - 1) * postsPerPage;
+  const end = start + postsPerPage;
+  return filterTableposts.value.slice(start, end);
 });
-
-watch(sort, (newVal: SortValue) => {
-  router.push({
-    query: {
-      ...route.query,
-      sortBy: newVal.sortBy,
-      header: newVal.header,
-    },
-  });
-});
-
-watch(
-  () => route.query,
-  (newQuery) => {
-    sort.value.sortBy = newQuery.sortBy?.toString() || 'lowtohigh';
-    sort.value.header = newQuery.header?.toString() || 'postId';
-    selectedMainHeader.value = newQuery.selectedMainHeader?.toString() || '';
-    inputVal.value = newQuery.inputVal?.toString() || '';
-  },
-  { immediate: true }
-);
 </script>
 
 <template>
@@ -151,7 +138,7 @@ watch(
     layout="row"
   ></SelectInput>
   <Table
-    :mergedposts="universalPaginatedPosts"
+    :mergedposts="paginatedposts"
     :headersArr="props.headersArr"
     :sortValue="sort"
     :inputVal="inputVal"
@@ -159,14 +146,7 @@ watch(
     @getSortFromParent="getSorting"
     @onClickRow="handlePostId"
   ></Table>
-  <!--  @getSortFromParent="getSorting"-->
-  <!--  :sort-value="sortValue"-->
-  <Pagination
-    :filtered-posts="filterTableposts"
-    :current-page="currentPage"
-    @send-current-page="getCurrentPage"
-    @paginatedposts="getPaginatedPosts"
-  ></Pagination>
+  <Pagination v-model:currentPage="currentPage" v-model:amountOfPages="amountOfPages"></Pagination>
 </template>
 
 <style scoped>

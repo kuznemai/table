@@ -1,26 +1,19 @@
 <script setup lang="ts">
-const props = defineProps<{
-  inputVal: string;
-  selectedMainHeader: string;
-  headersArr: string[];
-  layout?: 'row' | 'column';
-}>();
-const emit = defineEmits(['update:selectedMainHeader', 'update:inputVal']);
-function handleSelect(event: Event) {
-  const target = event.target as HTMLSelectElement;
-  emit('update:selectedMainHeader', target.value);
-}
+import { computed, ref } from 'vue';
 
-function handleInput(event: Event) {
-  const target = event.target as HTMLInputElement;
-  emit('update:inputVal', target.value);
-}
+const props = defineProps<{
+  headersArr: string[];
+}>();
+const selectedMainHeader = defineModel<string | number>('selectedMainHeader');
+const inputVal = defineModel<string>('inputVal');
+
+const isTypeInputNumber = computed(() => ['userId', 'postId'].includes(selectedMainHeader.value));
 </script>
 
 <template>
-  <!--  <div class="select-input-container">-->
-  <div :class="layout === 'column' ? 'select-input-column' : 'select-input-row'">
-    <select class="select-wrapperr" @change="handleSelect" :value="selectedMainHeader">
+  <!--  <div :class="layout === 'column' ? 'select-input-column' : 'select-input-row'">-->
+  <div class="select-input-row">
+    <select class="select-wrapperr" v-model="selectedMainHeader">
       <option
         v-for="header in props.headersArr"
         :key="header"
@@ -32,8 +25,7 @@ function handleInput(event: Event) {
     </select>
     <div class="">
       <input
-        :value="inputVal"
-        @input="handleInput"
+        v-model="inputVal"
         class="input-wrapper"
         :type="isTypeInputNumber ? 'number' : 'text'"
         placeholder="Search..."

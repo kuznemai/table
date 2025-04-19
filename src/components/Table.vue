@@ -45,12 +45,10 @@ function onClickRow(row: any) {
   emit('onClickRow', row);
 }
 
-function highlightMatch(value: string) {
-  // if (!props.inputVal) return value;
-  // console.log('props.inputVal', props.inputVal);
+function highlightMatch(value: string | number) {
+  if (!props.inputVal || (typeof value !== 'string' && typeof value !== 'number')) return value;
 
   const searchText = props.inputVal.toLowerCase();
-  console.log('searchText', searchText);
   const originalText = value.toString();
   const regex = new RegExp(searchText, 'gi');
 
