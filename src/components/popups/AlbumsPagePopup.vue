@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import Avatar from 'vue3-avatar';
 // import { computed } from 'vue/dist/vue';
 import { computed } from 'vue';
+import SelectInput from '@/components/SelectInput.vue';
 
 interface Photo {
   albumId: number;
@@ -76,22 +77,12 @@ function highlightMatch(value: string) {
 </script>
 
 <template>
-  <div class="albumspage_select_wrapper">
-    <select class="albumspage_select_wrapper_element" @change="" v-model="selectedPhotosHeader">
-      <option v-for="header in photosHeaders" :key="header" :value="header" class="select-option">
-        Filter by {{ header }}
-      </option>
-    </select>
-    <div class="">
-      <input
-        v-model="inputValue"
-        @input=""
-        class="albumspage_select_wrapper_element"
-        :type="isTypeInputNumber ? 'number' : 'text'"
-        placeholder="Search comments.."
-      />
-    </div>
-  </div>
+  <SelectInput
+    :headers-arr="photosHeaders"
+    v-model:selected-main-header="selectedPhotosHeader"
+    v-model:input-val="inputValue"
+  ></SelectInput>
+
   <div class="modal-header">
     <h2>Post details</h2>
     <!--    <h4>PostId : {{ props.postId }}</h4>-->
