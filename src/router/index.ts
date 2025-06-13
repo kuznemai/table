@@ -10,6 +10,7 @@ const routes = [
 ];
 
 const router = createRouter({
+  base: '/table',
   history: createWebHistory(),
   routes,
 });
