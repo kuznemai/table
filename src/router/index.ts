@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHashHistory } from 'vue-router';
 
 import AlbumsPage from '@/components/pages/AlbumsPage.vue';
 import PostsPage from '@/components/pages/PostsPage.vue';
@@ -10,8 +10,7 @@ const routes = [
 ];
 
 const router = createRouter({
-  base: '/table',
-  history: createWebHistory(),
+  history: createWebHashHistory('/table/'),
   routes,
 });
 
