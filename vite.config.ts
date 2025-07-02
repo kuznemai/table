@@ -13,4 +13,5 @@ export default defineConfig({
     },
   },
   // base: process.env.NODE_ENV === 'production' ? env.VITE_BASE_URL : '/',
+  base: '/table',
 });
