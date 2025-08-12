@@ -23,7 +23,6 @@ interface User {
   };
 }
 
-// const chosenTab = ref('albums');
 </script>
 
 <template>
